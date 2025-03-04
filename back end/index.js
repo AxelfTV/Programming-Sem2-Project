@@ -36,6 +36,25 @@ app.get("/api/users", (req, res) => {
     });
 });
 
+app.post('/add-user', (req, res) => {
+    const { username, password } = req.body;
+  
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password are required" });
+    }
+  
+    const sql = 'INSERT INTO users (username, password) VALUES (?, ?)';
+    
+    db.query(sql, [username, password], (err, result) => {
+      if (err) {
+        console.error('Error inserting data:', err);
+        res.status(500).send('Database error');
+      } else {
+        res.json({ message: 'User added', id: result.insertId });
+      }
+    });
+  });
+
 app.listen(PORT, ()=>{
     console.log(`Server is running on ${PORT}`)
 });
