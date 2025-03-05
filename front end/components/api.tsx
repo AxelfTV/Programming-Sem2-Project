@@ -43,7 +43,6 @@ export const addUser = async (user: newUser): Promise<void> => {
     console.error("Error adding user:", error);
   }
 };
-
 export const getUsers = async (): Promise<User[]> => {
   try {
     const response: User[] = await axios.get(`${API_URL}/api`)
@@ -54,11 +53,9 @@ export const getUsers = async (): Promise<User[]> => {
     return [];
   }
 }
-
 export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
   try {
     const response: UserProfile[] = await axios.get(`${API_URL}/user-profile/${userId}`);
-
     console.log(response);
     return response;
   } catch (error) {
@@ -66,7 +63,6 @@ export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
     return [];
   }
 }
-
 export const updateUserProfile = async (userProfile: UserProfile) : Promise<void> => {
   try {
     const response = await axios.put(`${API_URL}/user-profile/${userProfile.id}`, {bio:userProfile.bio,profile_image:userProfile.profile_image});
@@ -85,7 +81,7 @@ export const getRoute = async (routeId: Number) : Promise<Route[]> => {
     console.log(route);
     return [route];
   } catch (error) {
-    console.error("Error adding user:", error);
+    console.error("Failed to get route:", error);
     return [];
   }
 }
