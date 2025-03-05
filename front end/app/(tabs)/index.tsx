@@ -4,15 +4,16 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { addUser, getUsers, getProfile, updateUserProfile } from '@/components/api';
+import { addUser, getUsers, getProfile, updateUserProfile, getRoute } from '@/components/api';
 
 export default function HomeScreen() {
-  
+
   async function useApiCommands(){
     await getUsers();
     await addUser({username:"homeUser",password:"homePassword"});
     await getProfile(1);
     await updateUserProfile({id:"1",bio:"changed from home",profile_image:"homeImage"});
+    await getRoute(1);
   }
   useApiCommands();
   return (

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/"; // Update if needed
+const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
 interface newUser {
   username: string;
@@ -16,7 +16,21 @@ interface UserProfile{
   bio: string;
   profile_image: string;
 }
-
+interface Location{
+  id: string;
+  name: string;
+  long: string;
+  lat: string;
+}
+interface RouteInfo{
+  id: string;
+  created_by: string;
+  name: string;
+}
+interface Route{
+  locations: Array<Location>;
+  info: RouteInfo;
+}
 
 export const addUser = async (user: newUser): Promise<void> => {
   try {
@@ -60,5 +74,18 @@ export const updateUserProfile = async (userProfile: UserProfile) : Promise<void
     console.log("Profile updated:", response.data);
   } catch (error) {
     console.error("Failed to update profile:", error)
+  }
+}
+export const getRoute = async (routeId: Number) : Promise<Route[]> => {
+  let route: Route;
+  try {
+    const routeInfo: RouteInfo = await axios.get(`${API_URL}/route/${routeId}`);
+    const locations: Location[] = await axios.get(`${API_URL}/route-locations/${routeId}`);
+    route = {locations:locations,info:routeInfo};
+    console.log(route);
+    return [route];
+  } catch (error) {
+    console.error("Error adding user:", error);
+    return [];
   }
 }
