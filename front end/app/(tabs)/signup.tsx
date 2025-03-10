@@ -3,13 +3,13 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import HeadIcon from "@/components/HeadIcon";
 import loginPagesStyle from "@/app/styles/loginPagesStyle";
-import { addUser } from "@/components/api"; // 这里导入你的 API 请求函数
+import { addUser } from "@/components/api";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter(); // 使用 expo-router 进行跳转
+  const router = useRouter();
 
   const onPressSignUp = async () => {
     if (!username || !password) {
@@ -20,9 +20,9 @@ export default function Signup() {
     setError("");
 
     try {
-      await addUser({ username, password }); // 调用后端 API
+      await addUser({ username, password });
       console.log("Sign up successful! Navigating to /login...");
-      router.push("/login"); // 直接跳转到 Login 页面
+      router.push("/login");
     } catch (error) {
       setError("Failed to sign up. Please try again.");
       console.error("Signup error:", error);
