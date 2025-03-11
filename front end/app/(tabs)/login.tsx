@@ -1,57 +1,132 @@
-import React from "react";
-import { View, Text, TextInput, Button, Image, StyleSheet,TouchableOpacity } from "react-native";
-import {Link} from 'expo-router';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { getUsers } from "@/components/api";
+import HeadIcon from "@/components/HeadIcon";
+import loginPagesStyle from "@/app/styles/loginPagesStyle";
 
-import HeadIcon from '@/components/HeadIcon'; 
-import loginPagesStyle from "@/app/styles/loginPagesStyle"
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-const imagePath = require("../../assets/images/react-logo.png");
-const onPressLogin=()=>{
-    console.log("login");
-}
+  const onPressLogin = async () => {
+    if (!username || !password) {
+      setError("Username and Password cannot be empty.");
+      return;
+    }
 
-export default function login () {
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await getUsers();
+      console.log("Fetched Users:", response);
+
+      if (!response || !response.data || response.data.length === 0) {
+        setError("No users found.");
+        setLoading(false);
+        return;
+      }
+
+      // Username handles case and spaces,  password is converted to a string
+      const user = response.data.find(
+        (u) =>
+          u.username.trim().toLowerCase() === username.trim().toLowerCase() &&
+          String(u.password) === String(password)
+      );
+
+      console.log("Matched User:", user);
+
+      if (user) {
+        console.log("Login successful, navigating to profile...");
+        router.push("/profile");
+      } else {
+        setError("Invalid username or password.");
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.");
+      console.error("Login error:", error);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <View style={{ flex: 1, flexDirection: "column", padding: 20 }}>
-      {/* nacigation on the top*/}
+      {/* navigator */}
       <View style={loginPagesStyle.header}>
-        <HeadIcon  />
+        <HeadIcon />
         <View style={loginPagesStyle.headerright}>
-          <Link href="/explore"><Text style={{ marginRight: 15 }}>About</Text>
-          </Link>           
-          <Link href="/signup"><Text style={{ marginRight: 15 }}>Sign Up</Text>
-          </Link>
+          <TouchableOpacity onPress={() => router.push("/explore")}>
+            <Text style={{ marginRight: 15 }}>About</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/signup")}>
+            <Text style={{ marginRight: 15 }}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      
-      {/* main content */}
+
+      {/* main */}
       <View style={{ flex: 4, flexDirection: "row" }}>
-        {/* login an left */}
+        {/* left login form */}
         <View style={loginPagesStyle.body}>
-   
-          <Text style={loginPagesStyle.loginText}> Discover Dublin, Your Way – Explore Routes & Capture Your Day!</Text>
+          <Text style={loginPagesStyle.loginText}>
+            Discover Dublin, Your Way – Explore Routes & Capture Your Day!
+          </Text>
 
-            <View style={{width: "50%"}}>
-          <Text>Username</Text>
-          <TextInput style={loginPagesStyle.input} placeholder="Enter username" />
-          <Text>Password</Text>
-          <TextInput style={loginPagesStyle.input} secureTextEntry placeholder="Enter password" />
+          <View style={{ width: "50%" }}>
+            <Text>Username</Text>
+            <TextInput
+              style={loginPagesStyle.input}
+              placeholder="Enter username"
+              value={username}
+              onChangeText={setUsername}
+            />
+            <Text>Password</Text>
+            <TextInput
+              style={loginPagesStyle.input}
+              secureTextEntry
+              placeholder="Enter password"
+              value={password}
+              onChangeText={setPassword}
+            />
 
-          <TouchableOpacity style={loginPagesStyle.submitButton} onPress={onPressLogin}>
-        <Text style={loginPagesStyle.submitText}>Submit</Text>
-      </TouchableOpacity>
+            {error ? (
+              <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
+            ) : null}
 
-            </View>
+            <TouchableOpacity
+              style={loginPagesStyle.submitButton}
+              onPress={onPressLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={loginPagesStyle.submitText}>Submit</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-        
-        {/* picture at right */}
+
+        {/* right image */}
         <View style={loginPagesStyle.body}>
-          <Image source={imagePath} style={{ width: 300, height: 300 }} />
+          <Image
+            source={require("../../assets/images/react-logo.png")}
+            style={{ width: 300, height: 300 }}
+          />
         </View>
       </View>
     </View>
   );
-};
-
-
+}
