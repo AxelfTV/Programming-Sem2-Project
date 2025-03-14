@@ -31,6 +31,11 @@ interface Route{
   locations: Array<Location>;
   info: RouteInfo;
 }
+interface NewRoute{
+  locationIds: Array<Number>;
+  userId : Number;
+  name : string;
+}
 
 export const addUser = async (user: newUser): Promise<void> => {
   try {
@@ -72,16 +77,35 @@ export const updateUserProfile = async (userProfile: UserProfile) : Promise<void
     console.error("Failed to update profile:", error)
   }
 }
+export const addNewRoute = async (newRoute : NewRoute) : Promise<void> => {
+  try {
+    const response = await axios.post(`${API_URL}/route`, {userId:newRoute.userId,locations:newRoute.locationIds,name:newRoute.name}, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    console.log("Route added:", response.data);
+  } catch (error) {
+    console.log("Failed to add route:", error)
+  }
+}
 export const getRoute = async (routeId: Number) : Promise<Route[]> => {
   let route: Route;
   try {
     const routeInfo: RouteInfo = await axios.get(`${API_URL}/route/${routeId}`);
-    const locations: Location[] = await axios.get(`${API_URL}/route-locations/${routeId}`);
+    const locations: Location[] = await axios.get(`${API_URL}/route/${routeId}/locations`);
     route = {locations:locations,info:routeInfo};
     console.log(route);
     return [route];
   } catch (error) {
     console.error("Failed to get route:", error);
     return [];
+  }
+}
+export const addFollower = async (followingId: Number, followerId: Number) : Promise<void> => {
+  try{
+    const response = await axios.post(`${API_URL}/follow/${followingId}/${followerId}`)
+    console.log(response.data);
+  } catch (error){
+    console.error("Failed to add follower:", error);
   }
 }
