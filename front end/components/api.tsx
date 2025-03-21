@@ -13,6 +13,8 @@ interface User{
 }
 interface UserProfile{
   id: string;
+  username: string;
+  password: string;
   bio: string;
   profile_image: string;
 }
@@ -39,7 +41,7 @@ interface NewRoute{
 
 export const addUser = async (user: newUser): Promise<void> => {
   try {
-    const response = await axios.post(`${API_URL}/add-user`, {username:user.username,password:user.password}, {
+    const response = await axios.post(`${API_URL}/users`, {username:user.username,password:user.password}, {
       headers: { "Content-Type": "application/json" },
     });
 
@@ -50,7 +52,7 @@ export const addUser = async (user: newUser): Promise<void> => {
 };
 export const getUsers = async (): Promise<User[]> => {
   try {
-    const response: User[] = await axios.get(`${API_URL}/api`)
+    const response: User[] = await axios.get(`${API_URL}/users`)
     console.log(response);
     return response;
   } catch (error) {
@@ -60,7 +62,7 @@ export const getUsers = async (): Promise<User[]> => {
 }
 export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
   try {
-    const response: UserProfile[] = await axios.get(`${API_URL}/user-profile/${userId}`);
+    const response: UserProfile[] = await axios.get(`${API_URL}/users/${userId}`);
     console.log(response);
     return response;
   } catch (error) {
@@ -68,13 +70,22 @@ export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
     return [];
   }
 }
-export const updateUserProfile = async (userProfile: UserProfile) : Promise<void> => {
+export const updateUserProfileImage = async (userId:Number,image_src: string) : Promise<void> => {
   try {
-    const response = await axios.put(`${API_URL}/user-profile/${userProfile.id}`, {bio:userProfile.bio,profile_image:userProfile.profile_image});
+    const response = await axios.put(`${API_URL}/users/image/${userId}`, {profile_image:image_src});
 
-    console.log("Profile updated:", response.data);
+    console.log("Profile image updated:", response.data);
   } catch (error) {
-    console.error("Failed to update profile:", error)
+    console.error("Failed to update profile image:", error)
+  }
+}
+export const updateUserBio = async (userId:Number,bio: string) : Promise<void> => {
+  try {
+    const response = await axios.put(`${API_URL}/users/image/${userId}`, {bio:bio});
+
+    console.log("Bio updated:", response.data);
+  } catch (error) {
+    console.error("Failed to update bio:", error)
   }
 }
 export const addNewRoute = async (newRoute : NewRoute) : Promise<void> => {
