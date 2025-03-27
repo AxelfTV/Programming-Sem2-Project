@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import { getProfile,  updateUserProfileImage  } from "@/components/api";
+import { getProfile  } from "@/components/api/userAPI";
 
 //const imagePath = require("../../assets/images/react-logo.png");
 interface UserProfile{

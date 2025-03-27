@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 interface response{
@@ -118,4 +118,4 @@ export const addFollower = async (followingId: Number, followerId: Number) : Pro
   }
 }
 
-
+*/
