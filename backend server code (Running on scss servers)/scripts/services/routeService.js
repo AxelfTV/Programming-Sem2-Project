@@ -1,14 +1,14 @@
+const pool = require("../../db");
+
 class RouteService {
-    pool;
-    constructor(pool) {
+    constructor() {
         console.log("Route Service Created");
-        this.pool = pool;
     }
     async getRouteById(routeId){
         let conn;
         const sql = "SELECT * FROM routes WHERE id = ?";
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [routeId]);
             return result;
         } catch (err) {
@@ -22,7 +22,7 @@ class RouteService {
         let conn;
         const sql = "SELECT * FROM route_instances WHERE id = ?";
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [instanceId]);
             return result;
         } catch (err) {
@@ -40,7 +40,7 @@ class RouteService {
             limit ?;
         `; 
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [limit]);
             return result;
         } catch (err) {
@@ -59,8 +59,9 @@ class RouteService {
             WHERE rl.route_id = ?
             ORDER BY rl.route_position;`;
             try {
-                conn = await this.pool.getConnection();
+                conn = await pool.getConnection();
                 const result = await conn.query(sql, [routeId]);
+                console.log(result);
                 return result;
             } catch (err) {
                 console.error("Error:", err);
@@ -73,7 +74,7 @@ class RouteService {
         const sql = 'INSERT INTO routes (created_by_id, name) VALUES (?, ?)';
         const sql2 = 'INSERT INTO route_locations (route_id, location_id, route_position) VALUES (?, ?, ?)';
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [userId,name]);
             const id = result.insertId.toString();
             for(let location in locations){
@@ -93,7 +94,7 @@ class RouteService {
         const sql = 'SELECT * FROM route_instances WHERE user_id = ? AND status != -1';
         const sql2 = 'UPDATE route_instances SET status = -1 WHERE id = ?';
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const currentRoute = await conn.query(sql, [userId]);
 
             if (currentRoute.length === 0) {
@@ -120,7 +121,7 @@ class RouteService {
         let conn;
         const sql = 'SELECT COUNT(*) AS count FROM route_instances WHERE user_id = ? AND status != -1';
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [userId]);
             
             return result[0].count > 0;
@@ -135,7 +136,7 @@ class RouteService {
         let conn;
         const sql = 'INSERT INTO route_instances (user_id, route_id) VALUES (?, ?);';
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [userId, routeId]);
             
             return result.insertId.toString();
@@ -153,7 +154,7 @@ class RouteService {
             SET status = ?
             WHERE id = ?;`;
             try {
-                conn = await this.pool.getConnection();
+                conn = await pool.getConnection();
                 const result = await conn.query(sql, [destinationNumber, instanceId]);
                 if (result.affectedRows === 0) {
                     console.log("No route instance found with the provided id.");
@@ -170,4 +171,4 @@ class RouteService {
     }
 }
 
-module.exports = RouteService;
+module.exports = new RouteService();

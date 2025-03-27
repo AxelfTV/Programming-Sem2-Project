@@ -1,8 +1,8 @@
+const pool = require("../../db");
+
 class ContentService {
-    pool;
-    constructor(pool) {
+    constructor() {
         console.log("Content Service Created");
-        this.pool = pool;
     }
     async getUserPosts(userId, limit){
         const sql = `
@@ -13,7 +13,7 @@ class ContentService {
             LIMIT ?;`;
     let conn;
     try {
-        conn = await this.pool.getConnection();
+        conn = await pool.getConnection();
         const result = await conn.query(sql,[userId, limit]);
         return result;
       } catch(err){
@@ -34,7 +34,7 @@ class ContentService {
             LIMIT ?;`;
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql,[userId, limit]);
             return result;
         } catch(err){
@@ -51,7 +51,7 @@ class ContentService {
             WHERE instance_id = ?;`;
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql,[instanceId]);
             return result;
         } catch(err){
@@ -69,7 +69,7 @@ class ContentService {
             LIMIT 1;`;
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql,[instanceId]);
             return result.length>0;
         } catch(err){
@@ -85,7 +85,7 @@ class ContentService {
             INSERT INTO posts (user_id, instance_id) 
             VALUES (?, ?);`;
         try{
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [userId, instanceId]);
             return { instanceId, userId, message: "Post created successfully." };
         } catch (err){
@@ -103,7 +103,7 @@ class ContentService {
             ON DUPLICATE KEY UPDATE
             score = VALUES(score);`;
         try{
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [userId, routeId, score]);
             return { userId, routeId, message: "Rating created successfully." };
         } catch (err){
@@ -115,4 +115,4 @@ class ContentService {
     }
 }
 
-module.exports = ContentService;
+module.exports = new ContentService();

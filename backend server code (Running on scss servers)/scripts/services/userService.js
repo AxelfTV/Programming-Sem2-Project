@@ -1,17 +1,15 @@
 const bcrypt = require('bcrypt');
+const pool = require('../../db');
 
 class UserService {
-    pool;
     
-    constructor(pool) {
+    constructor() {
         console.log("User Service Created");
-        this.pool = pool;
-        
     }
     async getAllUsers(){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query("SELECT id, username, bio, profile_image_src FROM users");
             return result;
           } catch(err){
@@ -24,7 +22,7 @@ class UserService {
     async getUserById(userId){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query('SELECT id, username, bio, profile_image_src FROM users WHERE id = ?', [userId]);
             return result;
           } catch(err){
@@ -37,8 +35,34 @@ class UserService {
     async getUserByUsername(username){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query('SELECT * FROM users WHERE username = ?', [username]);
+            return result;
+          } catch(err){
+            console.error("Error:", err);
+            return null;
+          } finally {
+            if (conn) conn.release();
+          }
+    }
+    async getUserFollowing(userId){
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query('SELECT * FROM follows WHERE following_user_id = ?', [userId]);
+            return result;
+          } catch(err){
+            console.error("Error:", err);
+            return null;
+          } finally {
+            if (conn) conn.release();
+          }
+    }
+    async getUserFollowers(userId){
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query('SELECT * FROM follows WHERE followed_user_id = ?', [userId]);
             return result;
           } catch(err){
             console.error("Error:", err);
@@ -50,7 +74,7 @@ class UserService {
     async checkUserExists(username){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query('SELECT EXISTS (SELECT 1 FROM users WHERE username = ?) AS username_exists;', [username]);
             return result;
           } catch(err){
@@ -64,7 +88,7 @@ class UserService {
         let conn;
         const hashedPassword = await bcrypt.hash(password, 10);
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
             return result.insertId.toString();
         } catch(err){
@@ -77,7 +101,7 @@ class UserService {
     async loginUser(username, password) {
       let conn;
       try {
-          conn = await this.pool.getConnection();
+          conn = await pool.getConnection();
           const result = await conn.query(
               "SELECT id, username, password FROM users WHERE username = ?",
               [username]
@@ -104,7 +128,7 @@ class UserService {
     async updateUserBio(userId, bio){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query("UPDATE users SET bio = ? WHERE id = ?",[bio,userId]);
             return result;
         } catch(err){
@@ -117,7 +141,7 @@ class UserService {
     async updateUserProfileImage(userId, image_src){
         let conn;
         try {
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query("UPDATE users SET profile_image_src = ? WHERE id = ?",[image_src,userId]);
             return result;
         } catch(err){
@@ -130,7 +154,7 @@ class UserService {
     async addNewFollow(followedId, followerId){
       let conn;
       try{
-          conn = await this.pool.getConnection();
+          conn = await pool.getConnection();
           const result = await conn.query("INSERT INTO follows (following_user_id, followed_user_id) VALUES (?, ?);", [followerId, followedId]);
           return result.insertId.toString();
       } catch(err){
@@ -143,4 +167,4 @@ class UserService {
     
 }
 
-module.exports = UserService;
+module.exports = new UserService();

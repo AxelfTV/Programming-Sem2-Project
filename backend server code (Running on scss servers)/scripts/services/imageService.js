@@ -1,8 +1,8 @@
+const pool = require("../../db");
+
 class ImageService {
-    pool;
-    constructor(pool) {
+    constructor() {
         console.log("Image Service Created");
-        this.pool = pool;
     }
     async createInstanceImage(instanceId, locationId, imagePath){
         let conn;
@@ -10,7 +10,7 @@ class ImageService {
             INSERT INTO user_images (instance_id, location_id, image_src) 
             VALUES (?, ?, ?);`;
         try{
-            conn = await this.pool.getConnection();
+            conn = await pool.getConnection();
             const result = await conn.query(sql, [instanceId, locationId, imagePath]);
             return { instanceId, userId, message: "User image created successfully." };
         } catch (err){
@@ -22,4 +22,4 @@ class ImageService {
     }
 }
 
-module.exports = ImageService;
+module.exports = new ImageService();
