@@ -20,9 +20,7 @@ interface UserProfile{
 }
 const CurrentUserID = 17; //TODO:GET current user ID
 
-const [username, setUsername] = useState("");
-const [profile_image,setprofileimage]=useState("");
-const [bio,setbio]=useState("");
+
 
 
 function CreateFollow(currentUserId:number , userId:number) {
@@ -34,25 +32,24 @@ function CreateFollow(currentUserId:number , userId:number) {
 
 export default function Profile() {
 
-
+  const [username, setUsername] = useState("");
+  const [profile_image,setprofileimage]=useState("");
+  const [bio,setbio]=useState("");
 
   var userId = 17; // TODO: GET follower id
 
   useEffect(() => {
     async function fetchProfile() {
       const profileData: UserProfile[] = await getProfile(userId);
-      console.log(profileData);
-      if (profileData) {
-
-        console.log("profileData",profileData, profileData[0].username);
-        setUsername(profileData[0].username);
-       setprofileimage(profileData[0].profile_image_src);
+      console.log("profile data",profileData);
+      const profile = profileData[0];
+      console.log("profile", profile);
+        //console.log("profileData",profileData, profileData[0].username);
+      setUsername(profile.username);
+      setprofileimage(profile.profile_image_src);
         //GET follwers
-      }
-      else
-      {
-       // throw ("User Not Found");
-      }
+      
+      
     }
     fetchProfile();
   }, [userId]);

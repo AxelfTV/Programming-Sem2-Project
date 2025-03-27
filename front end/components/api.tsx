@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
-
+interface response{
+  data: [];
+}
 interface newUser {
   username: string;
   password: string;
@@ -61,9 +63,10 @@ export const getUsers = async (): Promise<UserProfile[]> => {
 }
 export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
   try {
-    const response: UserProfile[] = await axios.get(`${API_URL}/users/${userId}`);
+    const response: response = await axios.get(`${API_URL}/users/${userId}`);
+    const profile = response.data;
     console.log(response);
-    return response;
+    return profile;
   } catch (error) {
     console.error("Error adding user:", error);
     return [];
