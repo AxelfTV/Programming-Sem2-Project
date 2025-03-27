@@ -37,7 +37,6 @@ export default function Login() {
         setLoading(false);
         return;
       }
-
       // Username handles case and spaces,  password is converted to a string
       const user = response.data.find(
         (u) =>

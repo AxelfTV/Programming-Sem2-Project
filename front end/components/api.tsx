@@ -14,7 +14,6 @@ interface User{
 interface UserProfile{
   id: string;
   username: string;
-  password: string;
   bio: string;
   profile_image: string;
 }
@@ -50,9 +49,9 @@ export const addUser = async (user: newUser): Promise<void> => {
     console.error("Error adding user:", error);
   }
 };
-export const getUsers = async (): Promise<User[]> => {
+export const getUsers = async (): Promise<UserProfile[]> => {
   try {
-    const response: User[] = await axios.get(`${API_URL}/users`)
+    const response: UserProfile[] = await axios.get(`${API_URL}/users`)
     console.log(response);
     return response;
   } catch (error) {
