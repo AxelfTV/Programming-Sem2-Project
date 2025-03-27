@@ -61,7 +61,12 @@ const styles = StyleSheet.create({
   achievementText: {
     fontSize: 16,
     color: "#333",
-  },
+  },  followButton:{},
+  followButtonText:{},
+  editButton:{},
+  editButtonText:{},
+  signOut:{},
+  signOutText:{},
 
   /* ====== ====== */
   container: {
@@ -264,6 +269,76 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
+
+  //==========home page============//
+  followerSection: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+  followerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  followerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  followerName: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+
+  imageGallery: {
+    marginTop: 20,
+  },
+  imageCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+  imageHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  imageDate: {
+    marginLeft: "auto",
+    fontSize: 12,
+    color: "#888",
+  },
+  homepageimage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  imageFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  imageLocation: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  imageRoute: {
+    fontSize: 14,
+    color: "#007bff",
+  },
+
 });
 
 export default styles;

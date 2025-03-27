@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   Text,
@@ -11,13 +11,17 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
+import{getProfile} from "@/components/api";
 
 const imagePath = require("../../assets/images/react-logo.png");
 
-interface UserData {
-  name: string;
-  profileImage: any;
-}
+const CurrentUserID:number=1;//TODO: Get CurrentUserID
+const userId:number=2;  
+
+// interface UserData {
+//   name: string;
+//   profileImage: any;
+// }
 
 interface ImageData {
   id: string;
@@ -27,15 +31,41 @@ interface ImageData {
   route: string;
   description: string;
 }
+function CreateFollow(currentUserID:number,  userId:number )
+{
+  console.log(`Flollowing user ${userId}`);
+}
+function SignOut()
+{
+  console.log("sign out");
+}
 
 export default function Profile() {
-  const user: UserData = {
-    name: "Samuel Smiley",
-    profileImage: imagePath,
-  };
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  // const user: UserData = {
+  //   name: "Samuel Smiley",
+  //   profileImage: imagePath,
+  // };
+const [userProfile, setUserProfile]=useState({bio:"",profile_image:imagePath});
+
+const [modalVisible, setModalVisible] = useState(false);
+const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+
+useEffect(() => {
+  async function fetchProfile() {
+    console.log("fetch profile");
+    const profileData = await getProfile(userId);
+    console.log("get profilr data "+profileData.length);
+    if (profileData.length > 0) {
+      setUserProfile({
+        bio: profileData[0].bio,
+        profile_image: { uri: profileData[0].profile_image },
+      });
+      console.log("bio:"+profileData[0].bio);
+    }
+  }
+  fetchProfile();
+}, [userId]);
 
   const images: ImageData[] = [
     {
@@ -73,14 +103,29 @@ export default function Profile() {
         {/* Profile Section */}
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image source={user.profileImage} style={styles.profileImage} />
-            <Text style={styles.userName}>{user.name}</Text>
+            <Image source={userProfile.profile_image} style={styles.profileImage} />
+            <Text style={styles.userName}>{userProfile.bio}</Text>
           </View>
 
           <TouchableOpacity style={styles.achievementCard}>
             <Text style={styles.achievementText}>Your Achievements</Text>
           </TouchableOpacity>
+          {CurrentUserID!==userId? ( 
+        <TouchableOpacity
+        style={styles.followButton}
+        onPress={() => CreateFollow(CurrentUserID, userId)}
+          >
+        <Text style={styles.followButtonText}>Follow</Text>
+      </TouchableOpacity>
+          ):
+          (<TouchableOpacity style={styles.editButton}>
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>)}
         </View>
+
+        <TouchableOpacity style={styles.signOut} onPress={()=>SignOut()}>
+            <Text style={styles.signOutText}>SignOut</Text>
+          </TouchableOpacity>
 
         {/* Image Grid */}
         <FlatList
