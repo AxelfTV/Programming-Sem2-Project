@@ -14,9 +14,8 @@ interface User{
 interface UserProfile{
   id: string;
   username: string;
-  password: string;
   bio: string;
-  profile_image: string;
+  profile_image_src: string;
 }
 interface Location{
   id: string;
@@ -120,3 +119,5 @@ export const addFollower = async (followingId: Number, followerId: Number) : Pro
     console.error("Failed to add follower:", error);
   }
 }
+
+
