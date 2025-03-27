@@ -8,11 +8,6 @@ interface newUser {
   username: string;
   password: string;
 }
-interface User{
-  id: string;
-  username: string;
-  password: string;
-}
 interface UserProfile{
   id: string;
   username: string;
