@@ -9,66 +9,53 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import { getProfile  } from "@/components/api/userAPI";
+import { getProfile ,getUserFollowers } from "@/components/api/userAPI";
 
-//const imagePath = require("../../assets/images/react-logo.png");
-interface UserProfile{
-  id: string;
-  username: string;
-  bio: string;
-  profile_image_src: string;
-}
+
 const CurrentUserID = 17; //TODO:GET current user ID
-
-
-
 
 function CreateFollow(currentUserId:number , userId:number) {
   console.log(`Following user ${userId} from ${currentUserId}`);
 }
 
-
-
-
 export default function Profile() {
 
   const [username, setUsername] = useState("");
   const [profile_image,setprofileimage]=useState("");
+  const [followers, setFollowers] = useState<
+  { id: string; username: string; profile_image: string }[]
+>([]);
   const [bio,setbio]=useState("");
 
-  var userId = 17; // TODO: GET follower id
+  var userId =18; // TODO: GET follower id  
 
   useEffect(() => {
+
     async function fetchProfile() {
-      const profileData: UserProfile[] = await getProfile(userId);
-      console.log("profile data",profileData);
+      const profileData= await getProfile(userId);
       const profile = profileData[0];
-      console.log("profile", profile);
-        //console.log("profileData",profileData, profileData[0].username);
       setUsername(profile.username);
-      setprofileimage(profile.profile_image_src);
-        //GET follwers
-      
-      
+      setprofileimage(profile.profile_image_src);      
     }
     fetchProfile();
-  }, [userId]);
-
-  useEffect(() => {
     async function fetchFollowers() {
-   //   const followerData = await getFollowers(CurrentUserID);
-    //  setFollowers(followerData);
+        //GET follwers
+        const followerData=await getUserFollowers(userId);
+        const followerProfiles = await Promise.all(
+          followerData.map(async (follower) => {
+            console.log("follower",follower.followed_user_id);
+            const profileData = await getProfile(Number(follower.followed_user_id));
+            return {
+              id: follower.followed_user_id,
+              username: profileData[0].username,
+              profile_image: profileData[0].profile_image_src,
+            };
+          }))  
+          setFollowers(followerProfiles);   
     }
     fetchFollowers();
-  }, []);
+  }, [userId]);
 
-  //useEffect(() => {
-  //  async function fetchUserImages() {
-   //   const imagesData = await getUserImages(followers.map(f => f.id));
-    //  setUserImages(imagesData);
-  //  }
-  //  if (followers.length > 0) fetchUserImages();
-  //}, [followers]);
 
   return (
     <View style={styles.container}>
@@ -97,11 +84,11 @@ export default function Profile() {
         </View>
 
         {/* Followers List */}
- {/*      <View style={styles.followerSection}>
+      <View style={styles.followerSection}>
           <Text style={styles.sectionTitle}>Followers</Text>
           <FlatList
             data={followers}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.followerItem}>
                 <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
@@ -109,7 +96,7 @@ export default function Profile() {
               </View>
             )}
           />
-        </View> */}
+        </View>
       
 
         {/* Follower Images */}
