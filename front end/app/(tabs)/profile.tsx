@@ -11,17 +11,12 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import{getProfile} from "@/components/api";
+import{getProfile,getUserFollowers,addFollower} from "@/components/api/userAPI";
 
 const imagePath = require("../../assets/images/react-logo.png");
 
 const CurrentUserID:number=1;//TODO: Get CurrentUserID
-const userId:number=2;  
-
-// interface UserData {
-//   name: string;
-//   profileImage: any;
-// }
+const userId:number=17;  
 
 interface ImageData {
   id: string;
@@ -34,7 +29,9 @@ interface ImageData {
 function CreateFollow(currentUserID:number,  userId:number )
 {
   console.log(`Flollowing user ${userId}`);
+  addFollower(currentUserID,userId);
 }
+
 function SignOut()
 {
   console.log("sign out");
@@ -42,29 +39,22 @@ function SignOut()
 
 export default function Profile() {
 
-  // const user: UserData = {
-  //   name: "Samuel Smiley",
-  //   profileImage: imagePath,
-  // };
-const [userProfile, setUserProfile]=useState({bio:"",profile_image:imagePath});
-
+  const [username, setUsername] = useState("");
+  const [profile_image,setprofileimage]=useState("");
+  const[followingNum,setFollowingNum]=useState("");
 const [modalVisible, setModalVisible] = useState(false);
 const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
 
 useEffect(() => {
-  async function fetchProfile() {
-    console.log("fetch profile");
-    const profileData = await getProfile(userId);
-    console.log("get profilr data "+profileData.length);
-    if (profileData.length > 0) {
-      setUserProfile({
-        bio: profileData[0].bio,
-        profile_image: { uri: profileData[0].profile_image },
-      });
-      console.log("bio:"+profileData[0].bio);
+   async function fetchProfile() {
+      const profileData= await getProfile(userId);
+      const profile = profileData[0];
+      setUsername(profile.username);
+      setprofileimage(profile.profile_image_src); 
+      const following=await getUserFollowers(userId);      
+      setFollowingNum(following.length.toString());
     }
-  }
-  fetchProfile();
+    fetchProfile();
 }, [userId]);
 
   const images: ImageData[] = [
@@ -103,12 +93,13 @@ useEffect(() => {
         {/* Profile Section */}
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image source={userProfile.profile_image} style={styles.profileImage} />
-            <Text style={styles.userName}>{userProfile.bio}</Text>
+            <Image src={profile_image} style={styles.profileImage} />
+            <Text style={styles.userName}>{username}</Text>
           </View>
 
           <TouchableOpacity style={styles.achievementCard}>
             <Text style={styles.achievementText}>Your Achievements</Text>
+            <Text>Number of followings: {followingNum} </Text>
           </TouchableOpacity>
           {CurrentUserID!==userId? ( 
         <TouchableOpacity

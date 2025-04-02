@@ -17,9 +17,9 @@ interface LoginValidation{
     user : {id:string, username:string}
 }
 interface Follow{
-    followingUserId:string,
-    followedUserId:string,
-    timestamp:string
+    following_user_id:string,
+    followed_user_id:string,
+    created_at:string
 }
 
 export const addUser = async (user: LoginInfo): Promise<void> => {
