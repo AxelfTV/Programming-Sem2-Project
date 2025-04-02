@@ -24,11 +24,10 @@ interface Follow{
 
 export const addUser = async (user: LoginInfo): Promise<void> => {
     try {
-      const response = await axios.post(`${API_URL}/users`, {username:user.username,password:user.password}, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post(`${API_URL}/users`, {username:user.username,password:user.password}, 
+        { headers: { "Content-Type": "application/json" } });
   
-      console.log("User added:", response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error adding user:", error);
     }
@@ -48,7 +47,7 @@ export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
   try {
     const response = await axios.get(`${API_URL}/users/${userId}`);
     const data : UserProfile[] = response.data;
-    console.log(response);
+    console.log(data);
     return data;
   } catch (error) {
     console.error("Error getting user profile:", error);
