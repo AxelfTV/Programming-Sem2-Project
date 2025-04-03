@@ -19,15 +19,15 @@ interface RouteInfo{
     name: string;
 }
 interface NewRoute{
-    locationIds: Array<Number>;
-    userId : Number;
+    locationIds: Array<number>;
+    userId : number;
     name : string;
 }
 interface Instance{
-    id: Number,
-    user_id: Number,
-    route_id: Number,
-    status: Number,
+    id: number,
+    user_id: number,
+    route_id: number,
+    status: number,
 }
 
 export const addNewRoute = async (newRoute : NewRoute) : Promise<void> => {
@@ -41,7 +41,7 @@ export const addNewRoute = async (newRoute : NewRoute) : Promise<void> => {
       console.log("Failed to add route:", error)
     }
 }
-export const getRoute = async (routeId: Number) : Promise<Route[]> => {
+export const getRoute = async (routeId: number) : Promise<Route[]> => {
     let route: Route;
     try {
       const routeInfo: RouteInfo = await axios.get(`${API_URL}/routes/${routeId}`);

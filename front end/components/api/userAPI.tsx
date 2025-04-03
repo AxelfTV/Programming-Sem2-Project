@@ -43,7 +43,7 @@ export const getUsers = async (): Promise<UserProfile[]> => {
       return [];
     }
 };
-export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
+export const getProfile = async (userId: number): Promise<UserProfile[]> => {
   try {
     const response = await axios.get(`${API_URL}/users/${userId}`);
     const data : UserProfile[] = response.data;
@@ -54,7 +54,7 @@ export const getProfile = async (userId: Number): Promise<UserProfile[]> => {
     return [];
   }
 };
-export const updateUserBio = async (userId:Number,bio: string) : Promise<void> => {
+export const updateUserBio = async (userId:number,bio: string) : Promise<void> => {
     try {
       const response = await axios.put(`${API_URL}/users/${userId}/bio`, {bio:bio});
   
@@ -74,7 +74,7 @@ export const loginUser = async (user: LoginInfo) : Promise<LoginValidation[]> =>
         return [];
       }
 }
-export const addFollower = async (followerId: Number, followedId: Number) : Promise<void> => {
+export const addFollower = async (followerId: number, followedId: Number) : Promise<void> => {
     try{
       const response = await axios.post(`${API_URL}/users/${followerId}/follow/${followedId}`)
       console.log(response.data);
@@ -82,7 +82,7 @@ export const addFollower = async (followerId: Number, followedId: Number) : Prom
       console.error("Failed to add follower:", error);
     }
 }
-export const getUserFollowers = async (userId:Number) : Promise<Follow[]> => {
+export const getUserFollowers = async (userId:number) : Promise<Follow[]> => {
     try{
         const response = await axios.get(`${API_URL}/users/${userId}/followers`)
         const data : Follow[] = response.data;
@@ -93,7 +93,7 @@ export const getUserFollowers = async (userId:Number) : Promise<Follow[]> => {
         return [];
       }
 }
-export const getUserFollowing = async (userId:Number) : Promise<Follow[]> => {
+export const getUserFollowing = async (userId:number) : Promise<Follow[]> => {
     try{
         const response = await axios.get(`${API_URL}/users/${userId}/following`)
         const data : Follow[] = response.data;
