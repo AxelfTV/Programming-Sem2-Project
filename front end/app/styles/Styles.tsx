@@ -68,6 +68,27 @@ const styles = StyleSheet.create({
   signOut:{},
   signOutText:{},
 
+  /*follow List */
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  tabButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginHorizontal: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  tabButtonActive: {
+    borderBottomColor: "#2D0C57", 
+  },
+  tabText: {
+    fontSize: 16,
+    color: "#2D0C57",
+    fontWeight: "bold",
+  },
   /* ====== ====== */
   container: {
     flex: 1,

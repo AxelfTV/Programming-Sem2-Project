@@ -11,12 +11,12 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import{getProfile,getUserFollowers,addFollower} from "@/components/api/userAPI";
+import{getProfile,getUserFollowers,addFollower,getUserFollowing} from "@/components/api/userAPI";
 
 const imagePath = require("../../assets/images/react-logo.png");
 
 const CurrentUserID:number=1;//TODO: Get CurrentUserID
-const userId:number=17;  
+const userId:number=18;  
 
 interface ImageData {
   id: string;
@@ -29,7 +29,7 @@ interface ImageData {
 function CreateFollow(currentUserID:number,  userId:number )
 {
   console.log(`Flollowing user ${userId}`);
-  addFollower(currentUserID,userId);
+  //addFollower(currentUserID,userId);
 }
 
 function SignOut()
@@ -42,17 +42,22 @@ export default function Profile() {
   const [username, setUsername] = useState("");
   const [profile_image,setprofileimage]=useState("");
   const[followingNum,setFollowingNum]=useState("");
-const [modalVisible, setModalVisible] = useState(false);
-const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  const[followerNum,setFollowerNum]=useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
 
 useEffect(() => {
    async function fetchProfile() {
       const profileData= await getProfile(userId);
       const profile = profileData[0];
       setUsername(profile.username);
-      setprofileimage(profile.profile_image_src); 
-      const following=await getUserFollowers(userId);      
+      setprofileimage("https://2425-cs7025-group4.scss.tcd.ie/"+profile.profile_image_src); 
+   //   console.log("profile image"+" "+profile_image);
+      const following=await getUserFollowing(userId);      
+      const follower=await getUserFollowers(userId);      
       setFollowingNum(following.length.toString());
+      setFollowerNum(follower.length.toString());
+
     }
     fetchProfile();
 }, [userId]);
@@ -93,13 +98,14 @@ useEffect(() => {
         {/* Profile Section */}
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image src={profile_image} style={styles.profileImage} />
+            <Image source={{uri:profile_image}} style={styles.profileImage} />
             <Text style={styles.userName}>{username}</Text>
           </View>
 
           <TouchableOpacity style={styles.achievementCard}>
             <Text style={styles.achievementText}>Your Achievements</Text>
             <Text>Number of followings: {followingNum} </Text>
+            <Text>Number of followers: {followerNum} </Text>
           </TouchableOpacity>
           {CurrentUserID!==userId? ( 
         <TouchableOpacity
