@@ -4,7 +4,7 @@ import { View, Image, StyleSheet } from "react-native";
 export default function HeadIcon() {
   return (
     <View style={styles.container}>
-      <Image source={require("../assets/images/react-logo.png")} style={styles.image} />
+      <Image source={require("../assets/images/foxtrot-logo.png")} style={styles.image} />
     </View>
   );
 };
@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     zIndex: 999, 
   },
   image: {
-    width: 50, 
-    height: 50, 
+    width: 150, 
+    height: 100, 
     resizeMode: "contain",
   },
 });

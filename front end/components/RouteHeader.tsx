@@ -15,6 +15,19 @@ export default function RouteHeader() {
 
       {/* Navigation Links */}
       <View style={styles.nav}>
+        {/* Home Page */}
+        <TouchableOpacity onPress={() => router.push("/CurrentRoute")}>
+          <Text
+            style={[
+              styles.navLink,
+              pathname === "/homepage" && styles.activeLink,
+            ]}
+            // style={styles.navLink}
+          >
+            Home
+          </Text>
+        </TouchableOpacity>
+
         {/* Current Route */}
         <TouchableOpacity onPress={() => router.push("/CurrentRoute")}>
           <Text
@@ -24,11 +37,11 @@ export default function RouteHeader() {
             ]}
             // style={styles.navLink}
           >
-            Current Route
+            Route
           </Text>
         </TouchableOpacity>
 
-        {/* routes */}
+        {/* Explore Routes */}
         <TouchableOpacity onPress={() => router.push("/routes")}>
           <Text
             style={[
@@ -36,11 +49,11 @@ export default function RouteHeader() {
               pathname === "/routes" && styles.activeLink,
             ]}
           >
-            Routes
+            Explore
           </Text>
         </TouchableOpacity>
 
-        {/* profile */}
+        {/* Profile */}
         <TouchableOpacity onPress={() => router.push("/profile")}>
           <Text
             style={[
