@@ -16,7 +16,7 @@ export default function RouteHeader() {
       {/* Navigation Links */}
       <View style={styles.nav}>
         {/* Home Page */}
-        <TouchableOpacity onPress={() => router.push("/CurrentRoute")}>
+        <TouchableOpacity onPress={() => router.push("/homepage")}>
           <Text
             style={[
               styles.navLink,
