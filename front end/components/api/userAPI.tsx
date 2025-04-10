@@ -43,6 +43,17 @@ export const getUsers = async (): Promise<UserProfile[]> => {
       return [];
     }
 };
+export const getRandomUsers = async (amount: number): Promise<UserProfile[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/users/selection/random?limit=${amount}`)
+    const data : UserProfile[] = response.data;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error("Error getting users:", error)
+    return [];
+  }
+};
 export const getProfile = async (userId: number): Promise<UserProfile[]> => {
   try {
     const response = await axios.get(`${API_URL}/users/${userId}`);
