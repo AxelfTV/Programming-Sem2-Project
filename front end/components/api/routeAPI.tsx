@@ -65,3 +65,53 @@ export const getRandomRouteInfo = async (limit: number) : Promise<RouteInfo[]> =
         return [];
     }
 }
+export const startRouteInstance = async (routeId: number, userId: number): Promise<number[]> => {
+  try {
+      const response = await axios.post(`${API_URL}/routes/${routeId}/start/user/${userId}`);
+      console.log("Route instance started:", response.data);
+      return response.data;
+  } catch (error) {
+      console.error("Failed to start route instance:", error);
+      return [];
+  }
+}
+export const updateRouteInstancePosition = async (instanceId: number, destinationNumber: number): Promise<boolean> => {
+  try {
+      await axios.put(`${API_URL}/routes/update/instance/${instanceId}/position/${destinationNumber}`);
+      console.log(`Updated instance ${instanceId} to position ${destinationNumber}`);
+      return true;
+  } catch (error) {
+      console.error("Failed to update route instance position:", error);
+      return false;
+  }
+}
+export const endRouteInstance = async (instanceId: number): Promise<boolean> => {
+  try {
+      await axios.put(`${API_URL}/routes/instance/${instanceId}/end`);
+      console.log(`Ended instance ${instanceId}`);
+      return true;
+  } catch (error) {
+      console.error("Failed to end route instance:", error);
+      return false;
+  }
+}
+export const getUserActiveInstance = async (userId: number): Promise<Instance[]> => {
+  try {
+      const response = await axios.get(`${API_URL}/routes/user/${userId}/instance`);
+      console.log(`Active instance for user ${userId}:`, response.data);
+      return response.data;
+  } catch (error) {
+      console.error("Failed to get user active instance:", error);
+      return [];
+  }
+}
+export const getInstanceById = async (instanceId: number): Promise<Instance[]> => {
+  try {
+      const response = await axios.get(`${API_URL}/routes/instance/${instanceId}`);
+      console.log(`Instance ${instanceId} data:`, response.data);
+      return response.data;
+  } catch (error) {
+      console.error("Failed to get instance by ID:", error);
+      return [];
+  }
+}
