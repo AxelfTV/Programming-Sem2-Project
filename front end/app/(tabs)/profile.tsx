@@ -29,7 +29,7 @@ interface ImageData {
 function CreateFollow(currentUserID:number,  userId:number )
 {
   console.log(`Flollowing user ${userId}`);
-  //addFollower(currentUserID,userId);
+  addFollower(currentUserID,userId);
 }
 
 function SignOut()
@@ -60,6 +60,7 @@ useEffect(() => {
 
     }
     fetchProfile();
+    CreateFollow(17,18);
 }, [userId]);
 
   const images: ImageData[] = [

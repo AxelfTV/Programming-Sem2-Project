@@ -68,6 +68,49 @@ const styles = StyleSheet.create({
   signOut:{},
   signOutText:{},
 
+  /*Edit */
+  editSection: {
+    padding: 16,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  bioInput: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginVertical: 10,
+    minHeight: 60,
+    backgroundColor: "white",
+  },
+  imagePickerButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  saveButton: {
+    backgroundColor: "green",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  selectedImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+  
+
   /*follow List */
   tabContainer: {
     flexDirection: "row",

@@ -9,14 +9,18 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import { getProfile ,getUserFollowers,getUserFollowing} from "@/components/api/userAPI";
-
-
+import { getProfile ,getUserFollowers,getUserFollowing,getRandomUsers,updateUserBio,addFollower} from "@/components/api/userAPI";
+import EditProfileSection from "@/components/units/EditProfileSection";
+ 
 const CurrentUserID = 18; //TODO:GET current user ID
+const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
 function CreateFollow(currentUserId:number , userId:number) {
   console.log(`Following user ${userId} from ${currentUserId}`);
+  addFollower(currentUserId,userId);
 }
+
+
 
 export default function Profile() {
 
@@ -24,18 +28,26 @@ export default function Profile() {
   const [profile_image,setprofileimage]=useState("");
   const [followers, setFollowers] = useState< { id: string; username: string; profile_image: string }[]>([]);
   const [followings, setFollowings] = useState< { id: string; username: string; profile_image: string }[]>([]);
+  const [UsersDisplay, setuersDisplay] = useState< { id: string;username:string;profile_image:string}[]>([]);
   const [bio,setbio]=useState("");
 
+  /* Edit Profile */
+  const [isEditing, setIsEditing] = useState(false);
+
+
+
   var userId =18; // TODO: GET follower id  
+  async function fetchProfile() {
+    const profileData= await getProfile(userId);
+    const profile = profileData[0];
+    setUsername(profile.username);
+    setprofileimage(`${API_URL}`+profile.profile_image_src);   
+    
+  }
 
   useEffect(() => {
 
-    async function fetchProfile() {
-      const profileData= await getProfile(userId);
-      const profile = profileData[0];
-      setUsername(profile.username);
-      setprofileimage("https://2425-cs7025-group4.scss.tcd.ie/"+profile.profile_image_src);      
-    }
+    
     fetchProfile();
 
     async function fetchFollows() {
@@ -51,7 +63,7 @@ export default function Profile() {
             return {
               id: follower.followed_user_id,
               username: profileData[0].username,
-              profile_image:"https://2425-cs7025-group4.scss.tcd.ie/"+profileData[0].profile_image_src,
+              profile_image:`${API_URL}`+profileData[0].profile_image_src,
             };
           }))  
           setFollowers(followerProfiles); 
@@ -65,7 +77,7 @@ export default function Profile() {
               return {
                 id: follower.following_user_id,
                 username: profileData[0].username,
-                profile_image: "https://2425-cs7025-group4.scss.tcd.ie/"+profileData[0].profile_image_src,
+                profile_image: `${API_URL}`+profileData[0].profile_image_src,
               };
             }))  
             setFollowings(followingProfiles); 
@@ -73,9 +85,34 @@ export default function Profile() {
     }
     fetchFollows();
 
+
+    async function GetImageUsers()
+    {
+      const userGroup=await getRandomUsers(5);
+      const displayImages=await Promise.all(
+         userGroup.map(async (displayuser)=>{
+          const displayprofileData = await getProfile(Number(displayuser.id));
+          console.log("displayusers"+displayuser.id);
+          return {id:displayuser.id,
+            username:displayprofileData[0].username,
+            profile_image:`${API_URL}`+displayprofileData[0].profile_image_src
+          };
+         })
+      )
+      setuersDisplay(displayImages);  
+    }
+    GetImageUsers();
+
   }, [userId]);
 
+
+
   const [selectedTab, setSelectedTab] = useState<"followers" | "followings">("followers");
+
+  const handleProfileUpdate = async () => {
+    await fetchProfile();     // 刷新资料
+    setIsEditing(false);      // 隐藏编辑面板
+  };
 
   return (
     <View style={styles.container}>
@@ -83,6 +120,16 @@ export default function Profile() {
         <Header />
 
         {/* Profile Section */}
+        {CurrentUserID === userId && !isEditing && (
+  <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(true)}>
+    <Text style={styles.editButtonText}>Edit</Text>
+  </TouchableOpacity>
+)}
+
+{isEditing && (
+  <EditProfileSection userId={userId} onProfileUpdated={handleProfileUpdate} />
+)}
+
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
            <Image source={{uri:profile_image}} style={styles.profileImage} />
@@ -97,9 +144,13 @@ export default function Profile() {
               <Text style={styles.followButtonText}>Follow</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => setIsEditing(true)}
+              >
+          <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+
           )}
         </View>
 
@@ -138,28 +189,38 @@ export default function Profile() {
           </View>
         )}
       />
+            <FlatList
+        data={selectedTab === "followers" ? followers : followings}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.followerItem}>
+            <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
+            <Text style={styles.followerName}>{item.username}</Text>
+          </View>
+        )}
+      />
     </View>
         {/* Follower Images */}
-{/*    <View style={styles.imageGallery}>
+   <View style={styles.imageGallery}>
           <FlatList
-            data={userImages}
-            keyExtractor={(item) => item.image_src}
+            data={UsersDisplay}
+            keyExtractor={(item) => item.profile_image}
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
                 <View style={styles.imageHeader}>
                   <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
                   <Text style={styles.followerName}>{item.username}</Text>
-                  <Text style={styles.imageDate}>{item.date}</Text>
+       {   /*        <Text style={styles.imageDate}>{item.date}</Text> */}
                 </View>
-                <Image source={{ uri: item.image_src }} style={styles.image} />
+ {/*              <Image source={{ uri: item.image_src }} style={styles.image} />
                 <View style={styles.imageFooter}>
                   <Text style={styles.imageLocation}>{item.location}</Text>
                   <Text style={styles.imageRoute}>{item.route}</Text>
-                </View>
+                </View>*/}
               </View>
             )}
           />
-        </View> */}
+        </View>
         
       </ScrollView>
     </View>
