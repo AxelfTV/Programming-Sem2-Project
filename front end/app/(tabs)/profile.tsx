@@ -19,8 +19,10 @@ import {
 } from "@/components/api/userAPI";
 import { useLocalSearchParams, router } from "expo-router";
 import { useUser } from "@/components/UserContext";
+import { getUserPosts, getPostImages } from "@/components/api/contentAPI";
+import EditProfileSection from "@/components/units/EditProfileSection";
 
-const imagePath = require("../../assets/images/react-logo.png");
+const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
 interface ImageData {
   id: string;
@@ -38,11 +40,15 @@ export default function Profile() {
 
   const [username, setUsername] = useState("");
   const [profile_image, setprofileimage] = useState("");
+  const [profileBio, setProfileBio] = useState("");
   const [followingNum, setFollowingNum] = useState("");
   const [followerNum, setFollowerNum] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  const [editVisible, setEditVisible] = useState(false);
+  const [images, setImages] = useState<ImageData[]>([]);
 
+    const TempUser:number=19;
   useEffect(() => {
     async function fetchProfile() {
       const profileData = await getProfile(viewedUserId);
@@ -51,6 +57,7 @@ export default function Profile() {
       setprofileimage(
         "https://2425-cs7025-group4.scss.tcd.ie/" + profile.profile_image_src
       );
+      setProfileBio(profile.bio);
       const following = await getUserFollowing(viewedUserId);
       const follower = await getUserFollowers(viewedUserId);
       setFollowingNum(following.length.toString());
@@ -60,6 +67,31 @@ export default function Profile() {
     if (viewedUserId) {
       fetchProfile();
     }
+
+
+    async function fetchImages() {
+      //const posts = await getUserPosts(viewedUserId, 10);
+      const posts = await getUserPosts(TempUser, 10);
+      const imageData: ImageData[] = [];
+
+      for (const post of posts) {
+        const postImages = await getPostImages(post.instance_id);
+        if (postImages.length > 0) {
+          const firstImage = postImages[0];
+          imageData.push({
+            id: post.instance_id.toString(),
+            src: `${API_URL}${firstImage.image_src}`,
+            location: firstImage.location_id.toString(),
+            date: new Date(firstImage.created_at).toLocaleDateString(),
+            route:"",
+            description:""
+          });
+        }
+      }
+      
+      setImages(imageData);
+    }
+    fetchImages();
   }, [viewedUserId]);
 
   function CreateFollow() {
@@ -73,32 +105,17 @@ export default function Profile() {
     router.replace("/login");
   }
 
-  const images: ImageData[] = [
-    {
-      id: "1",
-      src: imagePath,
-      location: "Dublin",
-      date: "2024-02-22",
-      route: "Route",
-      description: "A beautiful street in Dublin.",
-    },
-    {
-      id: "2",
-      src: "",
-      location: "Galway",
-      date: "",
-      route: "",
-      description: "",
-    },
-    { id: "3", src: "", location: "", date: "", route: "", description: "" },
-    { id: "4", src: "", location: "", date: "", route: "", description: "" },
-    { id: "5", src: "", location: "", date: "", route: "", description: "" },
-    { id: "6", src: "", location: "", date: "", route: "", description: "" },
-  ];
 
   const handleImagePress = (image: ImageData) => {
     setSelectedImage(image);
     setModalVisible(true);
+  };
+
+  const handleProfileUpdate = () => {
+    setEditVisible(false);
+    setTimeout(() => {
+      location.reload(); 
+    }, 500);
   };
 
   return (
@@ -120,6 +137,7 @@ export default function Profile() {
             <Text style={styles.achievementText}>Your Achievements</Text>
             <Text>Number of followings: {followingNum} </Text>
             <Text>Number of followers: {followerNum} </Text>
+            <Text>bio: {profileBio}</Text>
           </TouchableOpacity>
 
           {/* 关注按钮/编辑按钮 */}
@@ -131,9 +149,20 @@ export default function Profile() {
               <Text style={styles.followButtonText}>Follow</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.editButton}>
+            <>
+            <TouchableOpacity style={styles.editButton} onPress={() => setEditVisible(true)}>
               <Text style={styles.editButtonText}>Edit</Text>
             </TouchableOpacity>
+
+  {editVisible && (
+  <EditProfileSection
+    userId={viewedUserId}
+    onProfileUpdated={handleProfileUpdate}
+  />
+)}
+</>
+
+
           )}
         </View>
 
@@ -142,34 +171,31 @@ export default function Profile() {
         </TouchableOpacity>
 
         {/* Image Grid */}
-        <FlatList
-          data={images}
-          keyExtractor={(item) => item.id}
-          numColumns={3}
-          renderItem={({ item }) => (
+        
+        <View style={styles.imageGrid}>
+          {images.map((image) => (
             <TouchableOpacity
-              onPress={() => handleImagePress(item)}
-              style={styles.imageContainer}
+            key={image.id}
+              style={styles.gridItem}
+          //    onPress={() => console.log("Open modal for", image.id)}
+              onPress={() => handleImagePress(image)}
             >
-              {item.src ? (
-                <Image source={imagePath} style={styles.image} />
-              ) : (
-                <View style={styles.placeholder} />
-              )}
+               <Image source={{ uri: image.src }} style={styles.gridImage} />
+              <Text style={styles.imageMeta}>{image.location}</Text>
+              <Text style={styles.imageMeta}>{image.date}</Text>
             </TouchableOpacity>
-          )}
-          scrollEnabled={false}
-        />
-      </ScrollView>
+))}
 
-      {/* Modal */}
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
+{/* Modal */}
+
+<Modal visible={modalVisible} transparent={true} animationType="fade">
         {selectedImage && (
           <Pressable
             style={styles.modalOverlay}
             onPress={() => setModalVisible(false)}
           >
             <View style={styles.modalContent}>
+              {/* left */}
               <Image
                 source={
                   typeof selectedImage.src === "string"
@@ -178,6 +204,8 @@ export default function Profile() {
                 }
                 style={styles.modalImage}
               />
+
+              {/* right*/}
               <View style={styles.modalTextContainer}>
                 <Text style={styles.modalTitle}>{selectedImage.location}</Text>
                 <Text style={styles.modalDate}>{selectedImage.date}</Text>
@@ -190,6 +218,9 @@ export default function Profile() {
           </Pressable>
         )}
       </Modal>
+</View>
+</ScrollView>
+      
     </View>
   );
 }
