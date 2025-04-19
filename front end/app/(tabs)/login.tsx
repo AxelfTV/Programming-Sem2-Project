@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,21 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { getUsers } from "@/components/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { loginUser } from "@/components/api/userAPI";
 import HeadIcon from "@/components/HeadIcon";
 import loginPagesStyle from "@/app/styles/loginPagesStyle";
+import { useUser } from "@/components/UserContext";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
+  const { setUser } = useUser();
 
   const onPressLogin = async () => {
     if (!username || !password) {
@@ -29,32 +34,37 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await getUsers();
-      console.log("Fetched Users:", response);
+      const loginResponse = await loginUser({ username, password });
+      console.log("🧩 loginResponse:", loginResponse);
 
-      if (!response || !response.data || response.data.length === 0) {
-        setError("No users found.");
-        setLoading(false);
-        return;
-      }
-      // Username handles case and spaces,  password is converted to a string
-      const user = response.data.find(
-        (u) =>
-          u.username.trim().toLowerCase() === username.trim().toLowerCase() &&
-          String(u.password) === String(password)
-      );
+      if (
+        loginResponse.length > 0 &&
+        loginResponse[0]?.message?.toLowerCase().includes("success")
+      ) {
+        const user = loginResponse[0].user;
 
-      console.log("Matched User:", user);
+        if (user && user.id) {
+          try {
+            await AsyncStorage.setItem("currentUser", JSON.stringify(user));
+            setUser({ ...user, id: parseInt(user.id) });
+            console.log("✅ currentUser：", user);
+          } catch (storageError) {
+            console.warn("⚠️error", storageError);
+          }
 
-      if (user) {
-        console.log("Login successful, navigating to profile...");
-        router.push("/profile");
+          router.replace({
+            pathname: "/(tabs)/profile",
+            params: { userId: user.id.toString() },
+          });
+        } else {
+          setError("Login failed: Invalid user.");
+        }
       } else {
         setError("Invalid username or password.");
       }
     } catch (error) {
-      setError("Login failed. Please try again.");
       console.error("Login error:", error);
+      setError("Login failed. Please try again.");
     }
 
     setLoading(false);
@@ -62,7 +72,7 @@ export default function Login() {
 
   return (
     <View style={{ flex: 1, flexDirection: "column", padding: 20 }}>
-      {/* navigator */}
+      {/* header */}
       <View style={loginPagesStyle.header}>
         <HeadIcon />
         <View style={loginPagesStyle.headerright}>
@@ -75,9 +85,9 @@ export default function Login() {
         </View>
       </View>
 
-      {/* main */}
+      {/* main content */}
       <View style={{ flex: 4, flexDirection: "row" }}>
-        {/* left login form */}
+        {/* login form */}
         <View style={loginPagesStyle.body}>
           <Text style={loginPagesStyle.loginText}>
             Discover Dublin, Your Way – Explore Routes & Capture Your Day!

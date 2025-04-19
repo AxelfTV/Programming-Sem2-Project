@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,12 +11,16 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
-import{getProfile,getUserFollowers,addFollower,getUserFollowing} from "@/components/api/userAPI";
+import {
+  getProfile,
+  getUserFollowers,
+  addFollower,
+  getUserFollowing,
+} from "@/components/api/userAPI";
+import { useLocalSearchParams, router } from "expo-router";
+import { useUser } from "@/components/UserContext";
 
 const imagePath = require("../../assets/images/react-logo.png");
-
-const CurrentUserID:number=1;//TODO: Get CurrentUserID
-const userId:number=18;  
 
 interface ImageData {
   id: string;
@@ -26,42 +30,48 @@ interface ImageData {
   route: string;
   description: string;
 }
-function CreateFollow(currentUserID:number,  userId:number )
-{
-  console.log(`Flollowing user ${userId}`);
-  addFollower(currentUserID,userId);
-}
-
-function SignOut()
-{
-  console.log("sign out");
-}
 
 export default function Profile() {
+  const { user: currentUser, logout } = useUser();
+  const { userId } = useLocalSearchParams();
+  const viewedUserId = parseInt(userId as string);
 
   const [username, setUsername] = useState("");
-  const [profile_image,setprofileimage]=useState("");
-  const[followingNum,setFollowingNum]=useState("");
-  const[followerNum,setFollowerNum]=useState("");
+  const [profile_image, setprofileimage] = useState("");
+  const [followingNum, setFollowingNum] = useState("");
+  const [followerNum, setFollowerNum] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
 
-useEffect(() => {
-   async function fetchProfile() {
-      const profileData= await getProfile(userId);
+  useEffect(() => {
+    async function fetchProfile() {
+      const profileData = await getProfile(viewedUserId);
       const profile = profileData[0];
       setUsername(profile.username);
-      setprofileimage("https://2425-cs7025-group4.scss.tcd.ie/"+profile.profile_image_src); 
-   //   console.log("profile image"+" "+profile_image);
-      const following=await getUserFollowing(userId);      
-      const follower=await getUserFollowers(userId);      
+      setprofileimage(
+        "https://2425-cs7025-group4.scss.tcd.ie/" + profile.profile_image_src
+      );
+      const following = await getUserFollowing(viewedUserId);
+      const follower = await getUserFollowers(viewedUserId);
       setFollowingNum(following.length.toString());
       setFollowerNum(follower.length.toString());
-
     }
-    fetchProfile();
-    CreateFollow(17,18);
-}, [userId]);
+
+    if (viewedUserId) {
+      fetchProfile();
+    }
+  }, [viewedUserId]);
+
+  function CreateFollow() {
+    if (!currentUser) return;
+    console.log(`Following user ${viewedUserId}`);
+    addFollower(currentUser.id, viewedUserId);
+  }
+
+  function SignOut() {
+    logout();
+    router.replace("/login");
+  }
 
   const images: ImageData[] = [
     {
@@ -99,7 +109,10 @@ useEffect(() => {
         {/* Profile Section */}
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
-            <Image source={{uri:profile_image}} style={styles.profileImage} />
+            <Image
+              source={{ uri: profile_image }}
+              style={styles.profileImage}
+            />
             <Text style={styles.userName}>{username}</Text>
           </View>
 
@@ -108,22 +121,25 @@ useEffect(() => {
             <Text>Number of followings: {followingNum} </Text>
             <Text>Number of followers: {followerNum} </Text>
           </TouchableOpacity>
-          {CurrentUserID!==userId? ( 
-        <TouchableOpacity
-        style={styles.followButton}
-        onPress={() => CreateFollow(CurrentUserID, userId)}
-          >
-        <Text style={styles.followButtonText}>Follow</Text>
-      </TouchableOpacity>
-          ):
-          (<TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>)}
+
+          {/* 关注按钮/编辑按钮 */}
+          {currentUser?.id !== viewedUserId ? (
+            <TouchableOpacity
+              style={styles.followButton}
+              onPress={CreateFollow}
+            >
+              <Text style={styles.followButtonText}>Follow</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.editButton}>
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <TouchableOpacity style={styles.signOut} onPress={()=>SignOut()}>
-            <Text style={styles.signOutText}>SignOut</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.signOut} onPress={SignOut}>
+          <Text style={styles.signOutText}>SignOut</Text>
+        </TouchableOpacity>
 
         {/* Image Grid */}
         <FlatList
@@ -136,10 +152,7 @@ useEffect(() => {
               style={styles.imageContainer}
             >
               {item.src ? (
-                <Image
-                  source={imagePath} //image
-                  style={styles.image}
-                />
+                <Image source={imagePath} style={styles.image} />
               ) : (
                 <View style={styles.placeholder} />
               )}
@@ -150,7 +163,6 @@ useEffect(() => {
       </ScrollView>
 
       {/* Modal */}
-
       <Modal visible={modalVisible} transparent={true} animationType="fade">
         {selectedImage && (
           <Pressable
@@ -158,7 +170,6 @@ useEffect(() => {
             onPress={() => setModalVisible(false)}
           >
             <View style={styles.modalContent}>
-              {/* left */}
               <Image
                 source={
                   typeof selectedImage.src === "string"
@@ -167,8 +178,6 @@ useEffect(() => {
                 }
                 style={styles.modalImage}
               />
-
-              {/* right*/}
               <View style={styles.modalTextContainer}>
                 <Text style={styles.modalTitle}>{selectedImage.location}</Text>
                 <Text style={styles.modalDate}>{selectedImage.date}</Text>
