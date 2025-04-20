@@ -44,8 +44,10 @@ export const addNewRoute = async (newRoute : NewRoute) : Promise<void> => {
 export const getRoute = async (routeId: number) : Promise<Route[]> => {
     let route: Route;
     try {
-      const routeInfo: RouteInfo = await axios.get(`${API_URL}/routes/${routeId}`);
-      const locations: Location[] = await axios.get(`${API_URL}/routes/${routeId}/locations`);
+      const routeRes = await axios.get(`${API_URL}/routes/${routeId}`);
+      const routeInfo = routeRes.data;
+      const locationsRes = await axios.get(`${API_URL}/routes/${routeId}/locations`);
+      const locations = locationsRes.data;
       route = {locations:locations,info:routeInfo};
       console.log(route);
       return [route];
@@ -53,6 +55,16 @@ export const getRoute = async (routeId: number) : Promise<Route[]> => {
       console.error("Failed to get route:", error);
       return [];
     }
+}
+export const getAllRoutes = async () : Promise<RouteInfo[]> => {
+  try {
+    const result = await axios.get(`${API_URL}/routes`);
+    console.log(result);
+    return result.data;
+  } catch (error) {
+    console.error("Failed to get route:", error);
+    return [];
+  }
 }
 export const getRandomRouteInfo = async (limit: number) : Promise<RouteInfo[]> => {
     try {
