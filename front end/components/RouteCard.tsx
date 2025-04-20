@@ -1,17 +1,19 @@
+// RouteCard.tsx
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { useRouter, usePathname } from "expo-router";
+import { useRouter } from "expo-router";
 import styles from "@/app/styles/Styles";
 
 interface RouteCardProps {
   image: any;
   name: string;
   rating: number;
+  id: string; // 添加 route id
 }
 
-const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating }) => {
+const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating, id }) => {
   const router = useRouter();
-  const pathname = usePathname();
+
   return (
     <View style={styles.card}>
       <Image source={image} style={styles.cardImage} resizeMode="cover" />
@@ -26,19 +28,16 @@ const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating }) => {
         <Text style={styles.cardDetails}>Total distance</Text>
         <Text style={styles.cardDetails}>Time estimate</Text>
 
-        {/* button */}
+        {/* 跳转按钮 */}
         <TouchableOpacity
-          onPress={() => router.push("/CurrentRoute")}
+          onPress={() =>
+      
+            router.push(`/CurrentRoute?routeId=${id}`) 
+            
+          }
           style={styles.goButton}
         >
-          <Text
-            style={[
-              styles.goButtonText,
-              pathname === "/CurrentRoute" && styles.activeLink,
-            ]}
-          >
-            GO
-          </Text>
+          <Text style={styles.goButtonText}>GO</Text>
         </TouchableOpacity>
       </View>
     </View>

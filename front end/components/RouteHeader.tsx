@@ -54,7 +54,7 @@ export default function RouteHeader() {
         </TouchableOpacity>
 
         {/* Profile */}
-        <TouchableOpacity onPress={() => router.push("/profile")}>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/profile/[userId]")}>
           <Text
             style={[
               styles.navLink,

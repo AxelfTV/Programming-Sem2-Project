@@ -397,6 +397,13 @@ imageGrid: {
     color: "white",
     fontWeight: "bold",
   },
+  uploadedImage:{
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: "center",
+    marginBottom: 10,
+  },
 
   //==========home page============//
   followerSection: {
