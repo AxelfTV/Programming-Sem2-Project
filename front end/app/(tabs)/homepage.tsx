@@ -10,49 +10,113 @@ import {
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
 import { getProfile ,getUserFollowers,getUserFollowing,getRandomUsers,updateUserBio,addFollower} from "@/components/api/userAPI";
-import EditProfileSection from "@/components/units/EditProfileSection";
+import { useLocalSearchParams, router } from "expo-router";
+import { useUser } from "@/components/UserContext";
+import { getUserPosts, getPostImages } from "@/components/api/contentAPI";
+import {getRoute } from "@/components/api/routeAPI";
+import { Link } from "expo-router";
  
-const CurrentUserID = 18; //TODO:GET current user ID
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
-function CreateFollow(currentUserId:number , userId:number) {
-  console.log(`Following user ${userId} from ${currentUserId}`);
-  addFollower(currentUserId,userId);
-}
 
 
-
-export default function Profile() {
+export default function homePage() {
+  const { user: currentUser, logout } = useUser();
+  const { userId } = useLocalSearchParams();
+  const currentUserId = currentUser?.id;
+ // const viewedUserId = parseInt(userId as string);
 
   const [username, setUsername] = useState("");
   const [profile_image,setprofileimage]=useState("");
   const [followers, setFollowers] = useState< { id: string; username: string; profile_image: string }[]>([]);
   const [followings, setFollowings] = useState< { id: string; username: string; profile_image: string }[]>([]);
-  const [UsersDisplay, setuersDisplay] = useState< { id: string;username:string;profile_image:string}[]>([]);
+  const [UsersDisplay, setuersDisplay] = useState< { 
+    id: string;
+    username:string;
+    profile_image:string;
+    image_src:string;
+    location: string;
+    date: string;
+    route: string;
+    description: string;
+
+  }[]>([]);
   const [bio,setbio]=useState("");
 
-  /* Edit Profile */
-  const [isEditing, setIsEditing] = useState(false);
-
-
-
-  var userId =18; // TODO: GET follower id  
+  var TempUserID =18; // For test
   async function fetchProfile() {
-    const profileData= await getProfile(userId);
+    if (!currentUserId) return;
+    const profileData= await getProfile(currentUserId);
     const profile = profileData[0];
     setUsername(profile.username);
     setprofileimage(`${API_URL}`+profile.profile_image_src);   
     
   }
 
-  useEffect(() => {
+  async function GetImageUsers() {
+    const userGroup = await getRandomUsers(5);
+    const displayImages = await Promise.all(
+      userGroup.map(async (user) => {
+        const userId = Number(user.id);
+        const profileData = await getProfile(userId);
+        const posts = await getUserPosts(userId,5);
+        if (posts.length === 0) {
+          return {
+            id: user.id,
+            username: profileData[0].username,
+            profile_image: `${API_URL}${profileData[0].profile_image_src}`,
+            image_src: "",
+            location: "",
+            date: "",
+            route: "",
+            description: "",
+          };
+        }
+  
+        // Random post
+        const randomPost = posts[Math.floor(Math.random() * posts.length)];
+        const postImages = await getPostImages(randomPost.instance_id);
+        
+  
+        if (postImages.length === 0) {
+          
+          return {
+            id: user.id,
+            username: profileData[0].username,
+            profile_image: `${API_URL}${profileData[0].profile_image_src}`,
+            image_src: "",
+            location: "",
+            date: "",
+            route: "",
+            description: "",
+          };
+        }
+  
+        const firstImage = postImages[0];
+        const route=await getRoute(firstImage.instance_id);
+        return {
+          id: user.id,
+          username: profileData[0].username,
+          profile_image: `${API_URL}${profileData[0].profile_image_src}`,
+          image_src: `${API_URL}${firstImage.image_src}`,
+          location: firstImage.location_id.toString(),
+          date: new Date(firstImage.created_at).toLocaleDateString(),
+          route:route && route[0] ? route[0].info.name : "",
+          description: route && route[0] && route[0].locations[firstImage.location_id]
+          ? route[0].locations[firstImage.location_id].name
+          : "",
+        };
+      })
+    );
+    setuersDisplay(displayImages);
+  }
 
+  useEffect(() => {
     
     fetchProfile();
-
     async function fetchFollows() {
-       
-        const followerData=await getUserFollowers(userId);
+      if (!currentUserId) return;
+        const followerData=await getUserFollowers(currentUserId);
 
          //GET follwers
         const followerProfiles = await Promise.all(
@@ -70,7 +134,7 @@ export default function Profile() {
           
 
           //GET followings
-          const followingdata=await getUserFollowing(userId);
+          const followingdata=await getUserFollowing(currentUserId);
           const followingProfiles = await Promise.all(
             followingdata.map(async (follower) => {
               const profileData = await getProfile(Number(follower.followed_user_id));
@@ -84,35 +148,23 @@ export default function Profile() {
           
     }
     fetchFollows();
-
-
-    async function GetImageUsers()
-    {
-      const userGroup=await getRandomUsers(5);
-      const displayImages=await Promise.all(
-         userGroup.map(async (displayuser)=>{
-          const displayprofileData = await getProfile(Number(displayuser.id));
-          console.log("displayusers"+displayuser.id);
-          return {id:displayuser.id,
-            username:displayprofileData[0].username,
-            profile_image:`${API_URL}`+displayprofileData[0].profile_image_src
-          };
-         })
-      )
-      setuersDisplay(displayImages);  
-    }
     GetImageUsers();
+    console.log("current page userID"+userId);
+  }, [currentUserId]);
 
-  }, [userId]);
-
-
+  function CreateFollow() {
+    if (!currentUserId) return;
+    console.log(`Following user ${currentUserId}`);
+    addFollower(currentUser.id, currentUserId);
+  }
 
   const [selectedTab, setSelectedTab] = useState<"followers" | "followings">("followers");
 
-  const handleProfileUpdate = async () => {
-    await fetchProfile();     // 刷新资料
-    setIsEditing(false);      // 隐藏编辑面板
-  };
+
+  // function SignOut() {
+  //   logout();
+  //   router.replace("/login");
+  // }
 
   return (
     <View style={styles.container}>
@@ -120,15 +172,6 @@ export default function Profile() {
         <Header />
 
         {/* Profile Section */}
-        {CurrentUserID === userId && !isEditing && (
-  <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(true)}>
-    <Text style={styles.editButtonText}>Edit</Text>
-  </TouchableOpacity>
-)}
-
-{isEditing && (
-  <EditProfileSection userId={userId} onProfileUpdated={handleProfileUpdate} />
-)}
 
         <View style={styles.profileContainer}>
           <View style={styles.avatarContainer}>
@@ -136,22 +179,7 @@ export default function Profile() {
             <Text style={styles.userName}>{username}</Text>
           </View>
 
-          {CurrentUserID !== userId ? (
-            <TouchableOpacity
-              style={styles.followButton}
-              onPress={() => CreateFollow(CurrentUserID, userId)}
-            >
-              <Text style={styles.followButtonText}>Follow</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => setIsEditing(true)}
-              >
-          <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>
-
-          )}
+       
         </View>
 
 
@@ -208,15 +236,22 @@ export default function Profile() {
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
                 <View style={styles.imageHeader}>
+                <Link
+  href={{ pathname: "/(tabs)/profile/[userId]", params: { userId: item.id.toString() } }}
+  asChild
+>
+                <TouchableOpacity>
                   <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
                   <Text style={styles.followerName}>{item.username}</Text>
-       {   /*        <Text style={styles.imageDate}>{item.date}</Text> */}
+       </TouchableOpacity>
+       </Link>
+             <Text style={styles.imageDate}>{item.date}</Text> 
                 </View>
- {/*              <Image source={{ uri: item.image_src }} style={styles.image} />
+             <Image source={{ uri: item.image_src }} style={styles.image} />
                 <View style={styles.imageFooter}>
                   <Text style={styles.imageLocation}>{item.location}</Text>
                   <Text style={styles.imageRoute}>{item.route}</Text>
-                </View>*/}
+                </View>
               </View>
             )}
           />

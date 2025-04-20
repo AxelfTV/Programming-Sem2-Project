@@ -21,7 +21,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { useUser } from "@/components/UserContext";
 import { getUserPosts, getPostImages } from "@/components/api/contentAPI";
 import EditProfileSection from "@/components/units/EditProfileSection";
-
+ 
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
 interface ImageData {
@@ -92,6 +92,7 @@ export default function Profile() {
       setImages(imageData);
     }
     fetchImages();
+
   }, [viewedUserId]);
 
   function CreateFollow() {
