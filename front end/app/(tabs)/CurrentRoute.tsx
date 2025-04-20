@@ -3,59 +3,67 @@ import { View, Text, TouchableOpacity, Image, ScrollView, Alert, Platform } from
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/components/UserContext";
-import { startRouteInstance, getRoute,getUserActiveInstance } from "@/components/api/routeAPI"; 
-import { uploadInstanceImage} from "@/components/api/imageAPI";
+import { startRouteInstance, getRoute, getUserActiveInstance, endRouteInstance } from "@/components/api/routeAPI";
+import { uploadInstanceImage } from "@/components/api/imageAPI";
+import { createPost } from "@/components/api/contentAPI";
 import styles from "@/app/styles/Styles";
 import Header from "@/components/RouteHeader";
 
 const imagePath = require("../../assets/images/MAP.png");
 
 export default function CurrentRoute() {
-  interface Route{
+  interface Route {
     locations: Array<Location>;
     info: RouteInfo;
-}
-interface Location{
+  }
+  interface Location {
     id: string;
     name: string;
     long: string;
     lat: string;
     image_src: string;
-}
-interface RouteInfo{
-  id: string;
-  created_by: string;
-  name: string;
-}
+  }
+  interface RouteInfo {
+    id: string;
+    created_by: string;
+    name: string;
+  }
 
-
-  const { routeId } = useLocalSearchParams(); // 获取传递过来的 routeId 参数
+  const { routeId } = useLocalSearchParams();
   const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [route, setRoute] = useState<Route | null>(null); // 保存当前的 route 数据
+  const [route, setRoute] = useState<Route | null>(null);
   const [instanceID, setInstanceID] = useState<number | null>(null);
-  const [newImage, setNewImage] = useState<File | null>(null); // 新图片
+  const [newImage, setNewImage] = useState<File | null>(null);
   const { user: currentUser } = useUser();
   const currentUserId = currentUser?.id;
 
-  // 开始路径实例并获取 instanceID
+  // 初始化 instance 和 route
   useEffect(() => {
-    console.log("cur route"+routeId);
-    console.log("Cur user"+currentUserId);
-    const curinstance=getUserActiveInstance(Number(currentUserId));
-    
-    console.log("Cur instance"+curinstance);
-    if (routeId && currentUserId) {
-      startRouteInstance(currentUserId, Number(routeId)).then((instance) => {
-        setInstanceID(instance?instance[0]:0); // 保存 instanceID
-        console.log("Instance started with ID:", instanceID);
-      });
+    const initializeRoute = async () => {
+      if (!currentUserId || !routeId) return;
 
-      // 获取当前的 route 信息
-      getRoute(Number(routeId)).then((fetchedRoute) => {
+      try {
+        const activeInstances = await getUserActiveInstance(currentUserId);
+
+        if (activeInstances && activeInstances.length > 0) {
+          const active = activeInstances[0];
+          setInstanceID(active.id);
+          console.log("Active Instance ID:", active.id);
+        } else {
+          const newInstance = await startRouteInstance(Number(routeId), currentUserId);
+          setInstanceID(newInstance[0]);
+          console.log("Started new instance:", newInstance[0]);
+        }
+
+        const fetchedRoute = await getRoute(Number(routeId));
         setRoute(fetchedRoute[0]);
-      });
-    }
+      } catch (error) {
+        console.error("Error initializing route instance:", error);
+      }
+    };
+
+    initializeRoute();
   }, [routeId, currentUserId]);
 
   // 选择目的地
@@ -63,8 +71,8 @@ interface RouteInfo{
     setSelectedDestination(locationId);
   };
 
-  // 处理文件选择
-  const handleSelectImage = async (locationId: string) => {
+  // 选择图片（Web 支持）
+  const handleSelectImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -74,22 +82,19 @@ interface RouteInfo{
 
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-
       if (Platform.OS === "web") {
-        // Web 端：用 fetch + blob 转为 File
         const response = await fetch(asset.uri);
         const blob = await response.blob();
         const file = new File([blob], "route-image.jpg", { type: blob.type });
         setNewImage(file);
-        setUploadedImage(URL.createObjectURL(file)); // 临时展示图片
+        setUploadedImage(URL.createObjectURL(file));
       } else {
-        // 原生端（不处理为 File，只是本地更新 UI）
         Alert.alert("Notice", "Image upload is only supported on web.");
       }
     }
   };
 
-  // 上传图片
+  // 上传图片到实例
   const handleUpload = async () => {
     if (instanceID && selectedDestination && newImage) {
       try {
@@ -104,21 +109,31 @@ interface RouteInfo{
     }
   };
 
+  // 结束路线并创建 post
+  const handleFinish = async () => {
+    if (currentUserId && instanceID) {
+      try {
+        await createPost(currentUserId, instanceID);
+        await endRouteInstance(instanceID);
+        Alert.alert("Route Finished", "Your route has been successfully completed!");
+      } catch (error) {
+        console.error("Error finishing route:", error);
+        Alert.alert("Error", "Failed to finish the route.");
+      }
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Header />
       <View style={styles.MapContent}>
-        {/* Left Map */}
         <Image source={imagePath} style={styles.mapImage} />
 
-        {/* Right */}
         <View style={styles.RouteContainer}>
-          {/* Route name */}
           <Text style={styles.routeTitle}>
             Route Name: {route ? route.info.name : "Loading..."}
           </Text>
 
-          {/* 展示从 route 获取的 locations */}
           {route?.locations.map((location) => (
             <TouchableOpacity
               key={location.id}
@@ -132,11 +147,7 @@ interface RouteInfo{
 
               {selectedDestination === location.id && (
                 <>
-                  {/* 显示上传按钮 */}
-                  <TouchableOpacity
-                    style={styles.uploadButton}
-                    onPress={() => handleSelectImage(location.id)}
-                  >
+                  <TouchableOpacity style={styles.uploadButton} onPress={handleSelectImage}>
                     <Text style={styles.uploadText}>📸 Select Image</Text>
                   </TouchableOpacity>
 
@@ -147,16 +158,18 @@ interface RouteInfo{
                     />
                   )}
 
-                  <TouchableOpacity
-                    style={styles.uploadButton}
-                    onPress={handleUpload}
-                  >
+                  <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
                     <Text style={styles.uploadText}>Upload Image</Text>
                   </TouchableOpacity>
                 </>
               )}
             </TouchableOpacity>
           ))}
+
+          {/* Finish 按钮 */}
+          <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+            <Text style={styles.uploadText}>✅ Finish</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>

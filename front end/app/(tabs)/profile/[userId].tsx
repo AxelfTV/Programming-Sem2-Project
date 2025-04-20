@@ -71,7 +71,7 @@ export default function Profile() {
 
     async function fetchImages() {
       //const posts = await getUserPosts(viewedUserId, 10);
-      const posts = await getUserPosts(TempUser, 10);
+      const posts = await getUserPosts(viewedUserId, 10);
       const imageData: ImageData[] = [];
 
       for (const post of posts) {

@@ -404,6 +404,12 @@ imageGrid: {
     alignSelf: "center",
     marginBottom: 10,
   },
+  finishButton:{
+    backgroundColor: "#F4A261",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
 
   //==========home page============//
   followerSection: {
