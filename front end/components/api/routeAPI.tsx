@@ -127,3 +127,12 @@ export const getInstanceById = async (instanceId: number): Promise<Instance[]> =
       return [];
   }
 }
+export const getRouteRating = async (routeId: number): Promise<Number> => {
+  try {
+      const response = await axios.get(`${API_URL}/routes/${routeId}/rating`);
+      return parseInt(response.data);
+  } catch (error) {
+      console.error("Failed to get route rating:", error);
+      return -1;
+  }
+}
