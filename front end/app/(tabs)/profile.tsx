@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Header from "@/components/RouteHeader";
 import styles from "@/app/styles/Styles";
+import { Redirect } from "expo-router";
 import {
   getProfile,
   getUserFollowers,
@@ -36,7 +37,7 @@ interface ImageData {
 export default function Profile() {
   const { user: currentUser, logout } = useUser();
   const { userId } = useLocalSearchParams();
-  const viewedUserId = parseInt(userId as string);
+  const viewedUserId = userId ? parseInt(userId as string) : currentUser?.id;
 
   const [username, setUsername] = useState("");
   const [profile_image, setprofileimage] = useState("");
@@ -50,16 +51,17 @@ export default function Profile() {
 
     const TempUser:number=19;
   useEffect(() => {
+
     async function fetchProfile() {
-      const profileData = await getProfile(viewedUserId);
+      const profileData = await getProfile(viewedUserId?viewedUserId:0);
       const profile = profileData[0];
       setUsername(profile.username);
       setprofileimage(
         "https://2425-cs7025-group4.scss.tcd.ie/" + profile.profile_image_src
       );
       setProfileBio(profile.bio);
-      const following = await getUserFollowing(viewedUserId);
-      const follower = await getUserFollowers(viewedUserId);
+      const following = await getUserFollowing(viewedUserId?viewedUserId:0);
+      const follower = await getUserFollowers(viewedUserId?viewedUserId:0);
       setFollowingNum(following.length.toString());
       setFollowerNum(follower.length.toString());
     }
@@ -70,8 +72,7 @@ export default function Profile() {
 
 
     async function fetchImages() {
-      //const posts = await getUserPosts(viewedUserId, 10);
-      const posts = await getUserPosts(viewedUserId, 10);
+      const posts = await getUserPosts(viewedUserId?viewedUserId:0, 10);
       const imageData: ImageData[] = [];
 
       for (const post of posts) {
@@ -98,7 +99,7 @@ export default function Profile() {
   function CreateFollow() {
     if (!currentUser) return;
     console.log(`Following user ${viewedUserId}`);
-    addFollower(currentUser.id, viewedUserId);
+    addFollower(currentUser.id, viewedUserId?viewedUserId:0);
   }
 
   function SignOut() {
@@ -141,7 +142,7 @@ export default function Profile() {
             <Text>bio: {profileBio}</Text>
           </TouchableOpacity>
 
-          {/* 关注按钮/编辑按钮 */}
+          {/* edit follow */}
           {currentUser?.id !== viewedUserId ? (
             <TouchableOpacity
               style={styles.followButton}
@@ -157,7 +158,7 @@ export default function Profile() {
 
   {editVisible && (
   <EditProfileSection
-    userId={viewedUserId}
+    userId={viewedUserId?viewedUserId:0}
     onProfileUpdated={handleProfileUpdate}
   />
 )}

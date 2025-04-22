@@ -131,7 +131,7 @@ export default function Login() {
         {/* right image */}
         <View style={loginPagesStyle.body}>
           <Image
-            source={require("../../assets/images/react-logo.png")}
+            source={require("../assets/images/react-logo.png")}
             style={{ width: 300, height: 300 }}
           />
         </View>

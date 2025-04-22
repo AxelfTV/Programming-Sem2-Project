@@ -10,7 +10,7 @@ import styles from "@/app/styles/Styles";
 import Header from "@/components/RouteHeader";
 import { router } from "expo-router";
 
-const imagePath = require("../../assets/images/MAP.png");
+const imagePath = require("../assets/images/MAP.png");
 
 export default function CurrentRoute() {
   interface Route {
@@ -39,7 +39,7 @@ export default function CurrentRoute() {
   const { user: currentUser } = useUser();
   const currentUserId = currentUser?.id;
 
-  // 初始化 instance 和 route
+  // init instance  route
   useEffect(() => {
     const initializeRoute = async () => {
       if (!currentUserId || !routeId) return;
@@ -49,12 +49,24 @@ export default function CurrentRoute() {
 
         if (activeInstances && activeInstances.length > 0) {
           const active = activeInstances[0];
-          setInstanceID(active.id);
+          if(routeId&&Number(routeId)!=active.route_id)
+          {
+            console.log("routeid"+routeId);
+            console.log("end active id"+active.route_id);
+            await endRouteInstance(active.id);
+            const newInstance = await startRouteInstance(Number(routeId), currentUserId);
+            setInstanceID(newInstance[0]);
+          }
+          else
+          {
+            setInstanceID(active.id);
+          }
           console.log("Active Instance ID:", active.id);
         } else {
           const newInstance = await startRouteInstance(Number(routeId), currentUserId);
           setInstanceID(newInstance[0]);
           console.log("Started new instance:", newInstance[0]);
+          console.log("route name"+route?.info.name);
         }
 
         const fetchedRoute = await getRoute(Number(routeId));
@@ -67,12 +79,12 @@ export default function CurrentRoute() {
     initializeRoute();
   }, [routeId, currentUserId,currentUserId]);
 
-  // 选择目的地
+  //destination
   const handleSelectDestination = (locationId: string) => {
     setSelectedDestination(locationId);
   };
 
-  // 选择图片（Web 支持）
+  // select img
   const handleSelectImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -95,7 +107,7 @@ export default function CurrentRoute() {
     }
   };
 
-  // 上传图片到实例
+  // upload img
   const handleUpload = async () => {
     if (instanceID && selectedDestination && newImage) {
       try {
@@ -110,7 +122,7 @@ export default function CurrentRoute() {
     }
   };
 
-  // 结束路线并创建 post
+  // end route create post
   const handleFinish = async () => {
     if (currentUserId && instanceID) {
       try {
@@ -168,7 +180,7 @@ export default function CurrentRoute() {
             </TouchableOpacity>
           ))}
 
-          {/* Finish 按钮 */}
+          {/* Finish */}
           <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
             <Text style={styles.uploadText}>✅ Finish</Text>
           </TouchableOpacity>

@@ -14,8 +14,6 @@ export default function RouteHeader() {
 
   const handleRoutePress = async () => {
     if (!user) {
-      // 如果没登录，可以跳转登录页或者阻止
-      console.warn("未登录，无法查看路线");
       return;
     }
     try {
@@ -26,7 +24,6 @@ export default function RouteHeader() {
         router.push({pathname: "/routes"  });
       }
     } catch (error) {
-      console.error("获取用户实例出错", error);
       router.push("/routes"); // 默认跳转
     }
   };
@@ -34,9 +31,7 @@ export default function RouteHeader() {
   const handleProfilePress = () => {
     if (user) {
       router.push({ pathname: "/(tabs)/profile", params: { userId: user.id.toString() } });
-    } else {
-      console.warn("未登录，无法跳转个人资料");
-    }
+    } 
   };
 
   return (
