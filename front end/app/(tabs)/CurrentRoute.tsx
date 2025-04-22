@@ -8,6 +8,7 @@ import { uploadInstanceImage } from "@/components/api/imageAPI";
 import { createPost } from "@/components/api/contentAPI";
 import styles from "@/app/styles/Styles";
 import Header from "@/components/RouteHeader";
+import { router } from "expo-router";
 
 const imagePath = require("../../assets/images/MAP.png");
 
@@ -64,7 +65,7 @@ export default function CurrentRoute() {
     };
 
     initializeRoute();
-  }, [routeId, currentUserId]);
+  }, [routeId, currentUserId,currentUserId]);
 
   // 选择目的地
   const handleSelectDestination = (locationId: string) => {
@@ -113,8 +114,9 @@ export default function CurrentRoute() {
   const handleFinish = async () => {
     if (currentUserId && instanceID) {
       try {
-        await createPost(currentUserId, instanceID);
         await endRouteInstance(instanceID);
+        await createPost(currentUserId, instanceID);
+        await router.push({ pathname: "/(tabs)/profile", params: { userId:currentUserId } });
         Alert.alert("Route Finished", "Your route has been successfully completed!");
       } catch (error) {
         console.error("Error finishing route:", error);

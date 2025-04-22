@@ -21,6 +21,18 @@ const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
 
 export default function homePage() {
+
+  interface DisplayImage {
+    id: string;
+    username: string;
+    profile_image: string;
+    image_src: string;
+    location: string;
+    date: string;
+    route: string;
+    description: string;
+  }
+
   const { user: currentUser, logout } = useUser();
   const { userId } = useLocalSearchParams();
   const currentUserId = currentUser?.id;
@@ -30,17 +42,7 @@ export default function homePage() {
   const [profile_image,setprofileimage]=useState("");
   const [followers, setFollowers] = useState< { id: string; username: string; profile_image: string }[]>([]);
   const [followings, setFollowings] = useState< { id: string; username: string; profile_image: string }[]>([]);
-  const [UsersDisplay, setuersDisplay] = useState< { 
-    id: string;
-    username:string;
-    profile_image:string;
-    image_src:string;
-    location: string;
-    date: string;
-    route: string;
-    description: string;
-
-  }[]>([]);
+  const [UsersDisplay, setuersDisplay] = useState< DisplayImage[]>([]);
   const [bio,setbio]=useState("");
 
   var TempUserID =18; // For test
@@ -53,62 +55,48 @@ export default function homePage() {
     
   }
 
-  async function GetImageUsers() {
-    const userGroup = await getRandomUsers(5);
-    const displayImages = await Promise.all(
-      userGroup.map(async (user) => {
+  async function GetImageUsers(minCount = 3, maxTries = 10) {
+    const collected: DisplayImage[] = [];
+    let tryCount = 0;
+  
+    while (collected.length < minCount && tryCount < maxTries) {
+      tryCount++;
+  
+      const userGroup = await getRandomUsers(5);
+  
+      for (const user of userGroup) {
+        if (collected.length >= minCount) break;
+  
         const userId = Number(user.id);
         const profileData = await getProfile(userId);
-        const posts = await getUserPosts(userId,5);
-        if (posts.length === 0) {
-          return {
-            id: user.id,
-            username: profileData[0].username,
-            profile_image: `${API_URL}${profileData[0].profile_image_src}`,
-            image_src: "",
-            location: "",
-            date: "",
-            route: "",
-            description: "",
-          };
-        }
+        const posts = await getUserPosts(userId, 5);
+        if (!posts || posts.length === 0) continue;
   
-        // Random post
         const randomPost = posts[Math.floor(Math.random() * posts.length)];
         const postImages = await getPostImages(randomPost.instance_id);
-        
-  
-        if (postImages.length === 0) {
-          
-          return {
-            id: user.id,
-            username: profileData[0].username,
-            profile_image: `${API_URL}${profileData[0].profile_image_src}`,
-            image_src: "",
-            location: "",
-            date: "",
-            route: "",
-            description: "",
-          };
-        }
+        if (!postImages || postImages.length === 0) continue;
   
         const firstImage = postImages[0];
-        const route=await getRoute(firstImage.instance_id);
-        return {
+        const route = await getRoute(firstImage.instance_id);
+        const routeData = route && route[0];
+  
+        const display: DisplayImage = {
           id: user.id,
           username: profileData[0].username,
           profile_image: `${API_URL}${profileData[0].profile_image_src}`,
           image_src: `${API_URL}${firstImage.image_src}`,
           location: firstImage.location_id.toString(),
           date: new Date(firstImage.created_at).toLocaleDateString(),
-          route:route && route[0] ? route[0].info.name : "",
-          description: route && route[0] && route[0].locations[firstImage.location_id]
-          ? route[0].locations[firstImage.location_id].name
-          : "",
+          route: routeData?.info?.name || "",
+          description:
+            routeData?.locations?.[firstImage.location_id]?.name || "",
         };
-      })
-    );
-    setuersDisplay(displayImages);
+  
+        collected.push(display);
+      }
+    }
+  
+    setuersDisplay(collected);
   }
 
   useEffect(() => {
@@ -169,7 +157,7 @@ export default function homePage() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Header />
+        <Header /> 
 
         {/* Profile Section */}
 
@@ -217,16 +205,7 @@ export default function homePage() {
           </View>
         )}
       />
-            <FlatList
-        data={selectedTab === "followers" ? followers : followings}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.followerItem}>
-            <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
-            <Text style={styles.followerName}>{item.username}</Text>
-          </View>
-        )}
-      />
+            
     </View>
         {/* Follower Images */}
    <View style={styles.imageGallery}>
@@ -237,7 +216,7 @@ export default function homePage() {
               <View style={styles.imageCard}>
                 <View style={styles.imageHeader}>
                 <Link
-  href={{ pathname: "/(tabs)/profile/[userId]", params: { userId: item.id.toString() } }}
+  href={{ pathname: "/(tabs)/profile", params: { userId: item.id.toString() } }}
   asChild
 >
                 <TouchableOpacity>

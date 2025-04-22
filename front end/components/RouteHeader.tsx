@@ -1,66 +1,68 @@
+// RouteHeader.tsx
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import styles from "@/app/styles/Styles";
 import HeadIcon from "@/components/HeadIcon";
+import { useUser } from "@/components/UserContext";
+import { getUserActiveInstance } from "@/components/api/routeAPI"; 
 
 export default function RouteHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useUser();
+
+  const handleRoutePress = async () => {
+    if (!user) {
+      // 如果没登录，可以跳转登录页或者阻止
+      console.warn("未登录，无法查看路线");
+      return;
+    }
+    try {
+      const instance = await getUserActiveInstance(user.id);
+      if (instance && instance.length!=0) {
+        router.push({pathname: "/CurrentRoute",params:{routeId: instance[0].route_id}});
+      } else {
+        router.push({pathname: "/routes"  });
+      }
+    } catch (error) {
+      console.error("获取用户实例出错", error);
+      router.push("/routes"); // 默认跳转
+    }
+  };
+
+  const handleProfilePress = () => {
+    if (user) {
+      router.push({ pathname: "/(tabs)/profile", params: { userId: user.id.toString() } });
+    } else {
+      console.warn("未登录，无法跳转个人资料");
+    }
+  };
 
   return (
     <View style={styles.header}>
-      {/* Logo */}
       <HeadIcon />
-
-      {/* Navigation Links */}
       <View style={styles.nav}>
-        {/* Home Page */}
         <TouchableOpacity onPress={() => router.push("/homepage")}>
-          <Text
-            style={[
-              styles.navLink,
-              pathname === "/homepage" && styles.activeLink,
-            ]}
-            // style={styles.navLink}
-          >
+          <Text style={[styles.navLink, pathname === "/homepage" && styles.activeLink]}>
             Home
           </Text>
         </TouchableOpacity>
 
-        {/* Current Route */}
-        <TouchableOpacity onPress={() => router.push("/CurrentRoute")}>
-          <Text
-            style={[
-              styles.navLink,
-              pathname === "/CurrentRoute" && styles.activeLink,
-            ]}
-            // style={styles.navLink}
-          >
+        <TouchableOpacity onPress={handleRoutePress}>
+          <Text style={[styles.navLink, pathname === "/CurrentRoute" && styles.activeLink]}>
             Route
           </Text>
         </TouchableOpacity>
 
-        {/* Explore Routes */}
         <TouchableOpacity onPress={() => router.push("/routes")}>
-          <Text
-            style={[
-              styles.navLink,
-              pathname === "/routes" && styles.activeLink,
-            ]}
-          >
+          <Text style={[styles.navLink, pathname === "/routes" && styles.activeLink]}>
             Explore
           </Text>
         </TouchableOpacity>
 
-        {/* Profile */}
-        <TouchableOpacity onPress={() => router.push("/(tabs)/profile/[userId]")}>
-          <Text
-            style={[
-              styles.navLink,
-              pathname === "/profile" && styles.activeLink,
-            ]}
-          >
+        <TouchableOpacity onPress={handleProfilePress}>
+          <Text style={[styles.navLink, pathname === "/profile" && styles.activeLink]}>
             Profile
           </Text>
         </TouchableOpacity>

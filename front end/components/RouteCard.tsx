@@ -1,17 +1,18 @@
-// RouteCard.tsx
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import styles from "@/app/styles/Styles";
 
+// 修改 onpress 类型为函数
 interface RouteCardProps {
   image: any;
   name: string;
   rating: number;
-  id: string; // 添加 route id
+  id: string;
+  onPress: () => void; // 这里修改为无参数的函数
 }
 
-const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating, id }) => {
+const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating, id, onPress }) => {
   const router = useRouter();
 
   return (
@@ -29,14 +30,7 @@ const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating, id }) => {
         <Text style={styles.cardDetails}>Time estimate</Text>
 
         {/* 跳转按钮 */}
-        <TouchableOpacity
-          onPress={() =>
-      
-            router.push(`/CurrentRoute?routeId=${id}`) 
-            
-          }
-          style={styles.goButton}
-        >
+        <TouchableOpacity onPress={onPress} style={styles.goButton}>
           <Text style={styles.goButtonText}>GO</Text>
         </TouchableOpacity>
       </View>

@@ -178,7 +178,6 @@ export default function Profile() {
             <TouchableOpacity
             key={image.id}
               style={styles.gridItem}
-          //    onPress={() => console.log("Open modal for", image.id)}
               onPress={() => handleImagePress(image)}
             >
                <Image source={{ uri: image.src }} style={styles.gridImage} />

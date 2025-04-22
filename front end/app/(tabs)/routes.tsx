@@ -4,6 +4,7 @@ import RouteCard from "@/components/RouteCard";
 import styles from "@/app/styles/Styles";
 import Header from "@/components/RouteHeader";
 import {getAllRoutes,getRoute} from "@/components/api/routeAPI";
+import { router } from "expo-router";
 
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
 
@@ -48,6 +49,7 @@ useEffect(() => {
             image={route.routeImage}
             name={route.routename}
             rating={2.0} 
+            onPress={() => router.push({ pathname: "/routeSelect", params: { routeId: route.id } })} // 传递跳转逻辑
           />
         ))}
       </View>
@@ -62,6 +64,7 @@ useEffect(() => {
             image={route.routeImage}
             name={route.routename}
             rating={2.0}
+            onPress={() => router.push({ pathname: "/routeSelect", params: { routeId: route.id } })} // 传递跳转逻辑
           />
         ))}
       </View>
