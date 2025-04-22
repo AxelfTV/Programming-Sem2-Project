@@ -15,7 +15,7 @@ interface Location{
 }
 interface RouteInfo{
     id: string;
-    created_by: string;
+    created_by_id: string;
     name: string;
 }
 interface NewRoute{
@@ -48,7 +48,7 @@ export const getRoute = async (routeId: number) : Promise<Route[]> => {
       const routeInfo = routeRes.data;
       const locationsRes = await axios.get(`${API_URL}/routes/${routeId}/locations`);
       const locations = locationsRes.data;
-      route = {locations:locations,info:routeInfo};
+      route = {locations:locations,info:routeInfo[0]};
       console.log(route);
       return [route];
     } catch (error) {

@@ -5,10 +5,12 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { addUser, getUsers, getProfile} from '@/components/api/userAPI';
+import { getRoute} from '@/components/api/routeAPI';
 
 export default function HomeScreen() {
 
   async function useApiCommands(){
+    await getRoute(8);
     await getUsers();
     await addUser({username:"homeUser1111",password:"homePassword"});
     await getProfile(18);
