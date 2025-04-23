@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView, Alert, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+  Platform,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/components/UserContext";
-import { startRouteInstance, getRoute, getUserActiveInstance, endRouteInstance } from "@/components/api/routeAPI";
+import {
+  startRouteInstance,
+  getRoute,
+  getUserActiveInstance,
+  endRouteInstance,
+} from "@/components/api/routeAPI";
 import { uploadInstanceImage } from "@/components/api/imageAPI";
 import { createPost } from "@/components/api/contentAPI";
 import styles from "@/app/styles/Styles";
 import Header from "@/components/RouteHeader";
 import { router } from "expo-router";
 
-const imagePath = require("../assets/images/MAP.png");
+import LeafletMap from "@/components/LeafletMap";
 
 export default function CurrentRoute() {
   interface Route {
@@ -31,7 +44,9 @@ export default function CurrentRoute() {
   }
 
   const { routeId } = useLocalSearchParams();
-  const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+  const [selectedDestination, setSelectedDestination] = useState<string | null>(
+    null
+  );
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
   const [instanceID, setInstanceID] = useState<number | null>(null);
@@ -39,7 +54,6 @@ export default function CurrentRoute() {
   const { user: currentUser } = useUser();
   const currentUserId = currentUser?.id;
 
-  // init instance  route
   useEffect(() => {
     const initializeRoute = async () => {
       if (!currentUserId || !routeId) return;
@@ -49,24 +63,22 @@ export default function CurrentRoute() {
 
         if (activeInstances && activeInstances.length > 0) {
           const active = activeInstances[0];
-          if(routeId&&Number(routeId)!=active.route_id)
-          {
-            console.log("routeid"+routeId);
-            console.log("end active id"+active.route_id);
+          if (routeId && Number(routeId) !== active.route_id) {
             await endRouteInstance(active.id);
-            const newInstance = await startRouteInstance(Number(routeId), currentUserId);
+            const newInstance = await startRouteInstance(
+              Number(routeId),
+              currentUserId
+            );
             setInstanceID(newInstance[0]);
-          }
-          else
-          {
+          } else {
             setInstanceID(active.id);
           }
-          console.log("Active Instance ID:", active.id);
         } else {
-          const newInstance = await startRouteInstance(Number(routeId), currentUserId);
+          const newInstance = await startRouteInstance(
+            Number(routeId),
+            currentUserId
+          );
           setInstanceID(newInstance[0]);
-          console.log("Started new instance:", newInstance[0]);
-          console.log("route name"+route?.info.name);
         }
 
         const fetchedRoute = await getRoute(Number(routeId));
@@ -77,14 +89,12 @@ export default function CurrentRoute() {
     };
 
     initializeRoute();
-  }, [routeId, currentUserId,currentUserId]);
+  }, [routeId, currentUserId]);
 
-  //destination
   const handleSelectDestination = (locationId: string) => {
     setSelectedDestination(locationId);
   };
 
-  // select img
   const handleSelectImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -107,11 +117,14 @@ export default function CurrentRoute() {
     }
   };
 
-  // upload img
   const handleUpload = async () => {
     if (instanceID && selectedDestination && newImage) {
       try {
-        await uploadInstanceImage(instanceID, Number(selectedDestination), newImage);
+        await uploadInstanceImage(
+          instanceID,
+          Number(selectedDestination),
+          newImage
+        );
         Alert.alert("Success", "Image uploaded successfully!");
       } catch (error) {
         Alert.alert("Error", "Failed to upload image.");
@@ -122,14 +135,19 @@ export default function CurrentRoute() {
     }
   };
 
-  // end route create post
   const handleFinish = async () => {
     if (currentUserId && instanceID) {
       try {
         await endRouteInstance(instanceID);
         await createPost(currentUserId, instanceID);
-        await router.push({ pathname: "/(tabs)/profile", params: { userId:currentUserId } });
-        Alert.alert("Route Finished", "Your route has been successfully completed!");
+        await router.push({
+          pathname: "/(tabs)/profile",
+          params: { userId: currentUserId },
+        });
+        Alert.alert(
+          "Route Finished",
+          "Your route has been successfully completed!"
+        );
       } catch (error) {
         console.error("Error finishing route:", error);
         Alert.alert("Error", "Failed to finish the route.");
@@ -140,8 +158,9 @@ export default function CurrentRoute() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Header />
+
       <View style={styles.MapContent}>
-        <Image source={imagePath} style={styles.mapImage} />
+        <LeafletMap />
 
         <View style={styles.RouteContainer}>
           <Text style={styles.routeTitle}>
@@ -153,7 +172,8 @@ export default function CurrentRoute() {
               key={location.id}
               style={[
                 styles.destinationBox,
-                selectedDestination === location.id && styles.selectedDestinationBox,
+                selectedDestination === location.id &&
+                  styles.selectedDestinationBox,
               ]}
               onPress={() => handleSelectDestination(location.id)}
             >
@@ -161,7 +181,10 @@ export default function CurrentRoute() {
 
               {selectedDestination === location.id && (
                 <>
-                  <TouchableOpacity style={styles.uploadButton} onPress={handleSelectImage}>
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={handleSelectImage}
+                  >
                     <Text style={styles.uploadText}>📸 Select Image</Text>
                   </TouchableOpacity>
 
@@ -172,7 +195,10 @@ export default function CurrentRoute() {
                     />
                   )}
 
-                  <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={handleUpload}
+                  >
                     <Text style={styles.uploadText}>Upload Image</Text>
                   </TouchableOpacity>
                 </>
@@ -180,7 +206,6 @@ export default function CurrentRoute() {
             </TouchableOpacity>
           ))}
 
-          {/* Finish */}
           <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
             <Text style={styles.uploadText}>✅ Finish</Text>
           </TouchableOpacity>
