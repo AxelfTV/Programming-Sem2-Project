@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
+  ImageBackground,
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -71,10 +71,13 @@ export default function Login() {
   };
 
   return (
-    <View style={{ flex: 1, flexDirection: "column", padding: 20 }}>
-      {/* header */}
-      <View style={loginPagesStyle.header}>
-        <HeadIcon />
+    <ImageBackground
+    source={require("@/assets/images/signInBG.png")}
+    style={loginPagesStyle.backgroundImage}
+    resizeMode="cover">
+              {/* header */}
+      <View style={[loginPagesStyle.header, { width: '100%', paddingHorizontal: 20 }]}>
+          <HeadIcon />
         <View style={loginPagesStyle.headerright}>
           <TouchableOpacity onPress={() => router.push("/explore")}>
             <Text style={{ marginRight: 15 }}>About</Text>
@@ -84,58 +87,49 @@ export default function Login() {
           </TouchableOpacity>
         </View>
       </View>
+      
+      <View style={loginPagesStyle.container}>
 
-      {/* main content */}
-      <View style={{ flex: 4, flexDirection: "row" }}>
-        {/* login form */}
-        <View style={loginPagesStyle.body}>
-          <Text style={loginPagesStyle.loginText}>
-            Discover Dublin, Your Way – Explore Routes & Capture Your Day!
-          </Text>
+          {/* login form */}
+          <View style={loginPagesStyle.card}>
+            <Text style={loginPagesStyle.loginText}>
+              Discover Dublin, Your Way – Explore Routes & Capture Your Day!
+            </Text>
 
-          <View style={{ width: "50%" }}>
-            <Text>Username</Text>
-            <TextInput
-              style={loginPagesStyle.input}
-              placeholder="Enter username"
-              value={username}
-              onChangeText={setUsername}
-            />
-            <Text>Password</Text>
-            <TextInput
-              style={loginPagesStyle.input}
-              secureTextEntry
-              placeholder="Enter password"
-              value={password}
-              onChangeText={setPassword}
-            />
+            
+              <Text>Username</Text>
+              <TextInput
+                style={loginPagesStyle.input}
+                placeholder="Enter username"
+                value={username}
+                onChangeText={setUsername}
+              />
+              <Text>Password</Text>
+              <TextInput
+                style={loginPagesStyle.input}
+                secureTextEntry
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+              />
 
-            {error ? (
-              <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
-            ) : null}
+              {error ? (
+                <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
+              ) : null}
 
-            <TouchableOpacity
-              style={loginPagesStyle.submitButton}
-              onPress={onPressLogin}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={loginPagesStyle.submitText}>Submit</Text>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={loginPagesStyle.submitButton}
+                onPress={onPressLogin}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={loginPagesStyle.submitText}>Sign In</Text>
+                )}
+              </TouchableOpacity>
           </View>
-        </View>
-
-        {/* right image */}
-        <View style={loginPagesStyle.body}>
-          <Image
-            source={require("../assets/images/react-logo.png")}
-            style={{ width: 300, height: 300 }}
-          />
-        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }

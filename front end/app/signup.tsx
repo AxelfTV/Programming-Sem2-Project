@@ -1,14 +1,24 @@
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  ImageBackground,        // ← import this
+} from "react-native";
+import { useRouter } from "expo-router";
+
 import HeadIcon from "@/components/HeadIcon";
+import { addUser } from "@/components/api/userAPI";
 import loginPagesStyle from "@/app/styles/loginPagesStyle";
-import { addUser } from "@/components/api";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const onPressSignUp = async () => {
@@ -16,55 +26,71 @@ export default function Signup() {
       setError("Username and Password cannot be empty.");
       return;
     }
-
     setError("");
+    setLoading(true);
 
     try {
       await addUser({ username, password });
-      console.log("Sign up successful! ");
-      router.push("/login");
-    } catch (error) {
+      router.replace("/login");
+      return;
+    } catch (e) {
+      console.error("Signup error:", e);
       setError("Failed to sign up. Please try again.");
-      console.error("Signup error:", error);
     }
+
+    setLoading(false);
   };
 
   return (
-    <View style={loginPagesStyle.container}>
+    <ImageBackground
+      source={require("@/assets/images/signInBG.png")}
+      style={loginPagesStyle.backgroundImage}
+      resizeMode="cover"
+    >
+      {/* Header */}
       <View style={loginPagesStyle.header}>
         <HeadIcon />
       </View>
 
-      <View style={loginPagesStyle.body}>
-        <Text style={loginPagesStyle.loginText}>
-          Create your profile to start
-        </Text>
+      {/* Centered Card */}
+      <View style={loginPagesStyle.container}>
+        <View style={loginPagesStyle.card}>
+          <Text style={loginPagesStyle.loginText}>
+            Create your profile to start
+          </Text>
 
-        <View style={{ width: "33%" }}>
-          <Text>Username</Text>
           <TextInput
             style={loginPagesStyle.input}
-            placeholder="Enter username"
+            placeholder="Username"
+            autoCapitalize="none"
             value={username}
             onChangeText={setUsername}
           />
-          <Text>Password</Text>
           <TextInput
             style={loginPagesStyle.input}
+            placeholder="Password"
             secureTextEntry
-            placeholder="Enter password"
             value={password}
             onChangeText={setPassword}
           />
-          {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
+
+          {error ? (
+            <Text style={{ color: "red", marginBottom: 8 }}>{error}</Text>
+          ) : null}
+
           <TouchableOpacity
             style={loginPagesStyle.submitButton}
             onPress={onPressSignUp}
+            disabled={loading}
           >
-            <Text style={loginPagesStyle.submitText}>Submit</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={loginPagesStyle.submitText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }

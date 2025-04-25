@@ -11,17 +11,22 @@ export default function TabLayout() {
     return <Redirect href="/login" />;
   }
   return (
-    <Tabs>
+    <Tabs
+    screenOptions={{
+      headerShown: false,
+    }}>
       <Tabs.Screen
         name="homepage"
         options={{
           title: "Home",
+          tabBarStyle: { display: "none" },
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
+          tabBarStyle: { display: "none" },
         }}
       />
     </Tabs>
