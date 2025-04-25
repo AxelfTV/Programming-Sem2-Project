@@ -199,7 +199,7 @@ imageGrid: {
   /* ====== ====== */
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FCE2A9",
   },
   scrollContainer: {
     paddingHorizontal: 140,
@@ -440,8 +440,11 @@ imageGrid: {
 
   imageGallery: {
     marginTop: 20,
+    width: "100%",
+    alignItems: "center",
   },
   imageCard: {
+    width: 500, 
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
@@ -463,7 +466,7 @@ imageGrid: {
   },
   homepageimage: {
     width: "100%",
-    height: 200,
+    height: 400,
     borderRadius: 10,
     marginBottom: 5,
   },

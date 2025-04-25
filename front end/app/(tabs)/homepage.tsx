@@ -13,7 +13,7 @@ import { getProfile ,getUserFollowers,getUserFollowing,getRandomUsers,updateUser
 import { useLocalSearchParams, router } from "expo-router";
 import { useUser } from "@/components/UserContext";
 import { getUserPosts, getPostImages } from "@/components/api/contentAPI";
-import {getRoute } from "@/components/api/routeAPI";
+import {getRoute, getInstanceById } from "@/components/api/routeAPI";
 import { Link } from "expo-router";
  
 const API_URL = "https://2425-cs7025-group4.scss.tcd.ie/";
@@ -77,8 +77,13 @@ export default function homePage() {
         if (!postImages || postImages.length === 0) continue;
   
         const firstImage = postImages[0];
-        const route = await getRoute(firstImage.instance_id);
-        const routeData = route && route[0];
+        const instanceArr = await getInstanceById(randomPost.instance_id);
+        const routeTemplateId = instanceArr[0]?.route_id;
+        let routeData = null;
+        if (routeTemplateId) {
+          const routeArr = await getRoute(routeTemplateId);
+          routeData = routeArr[0];
+        }
   
         const display: DisplayImage = {
           id: user.id,
@@ -172,64 +177,66 @@ export default function homePage() {
 
 
         <View style={styles.followerSection}>
-      {/* Tab Buttons */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            selectedTab === "followers" && styles.tabButtonActive,
-          ]}
-          onPress={() => setSelectedTab("followers")}
-        >
-          <Text style={styles.tabText}>Followers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            selectedTab === "followings" && styles.tabButtonActive,
-          ]}
-          onPress={() => setSelectedTab("followings")}
-        >
-          <Text style={styles.tabText}>Followings</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* List */}
-      <FlatList
-        data={selectedTab === "followers" ? followers : followings}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.followerItem}>
-            <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
-            <Text style={styles.followerName}>{item.username}</Text>
+          
+          {/* Tab Buttons */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[
+                styles.tabButton,
+                selectedTab === "followers" && styles.tabButtonActive,
+              ]}
+              onPress={() => setSelectedTab("followers")}
+            >
+              <Text style={styles.tabText}>Followers</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tabButton,
+                selectedTab === "followings" && styles.tabButtonActive,
+              ]}
+              onPress={() => setSelectedTab("followings")}
+            >
+              <Text style={styles.tabText}>Followings</Text>
+            </TouchableOpacity>
           </View>
-        )}
-      />
-            
-    </View>
+
+          {/* List */}
+          <FlatList
+            data={selectedTab === "followers" ? followers : followings}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.followerItem}>
+                <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
+                <Text style={styles.followerName}>{item.username}</Text>
+              </View>
+            )}
+          />
+        </View>
+
         {/* Follower Images */}
-   <View style={styles.imageGallery}>
+      <View style={styles.imageGallery}>
           <FlatList
             data={UsersDisplay}
-            keyExtractor={(item) => item.id}   
+            keyExtractor={(item) => item.id} 
+            contentContainerStyle={{ alignItems: "center", paddingBottom: 20 }}  
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
                 <View style={styles.imageHeader}>
-                <Link
-  href={{ pathname: "/(tabs)/profile", params: { userId: item.id.toString() } }}
-  asChild
->
-                <TouchableOpacity>
-                  <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
-                  <Text style={styles.followerName}>{item.username}</Text>
-       </TouchableOpacity>
-       </Link>
-             <Text style={styles.imageDate}>{item.date}</Text> 
+                  <Link
+                    href={{ pathname: "/(tabs)/profile", params: { userId: item.id.toString() } }}
+                    asChild
+                  >
+                    <TouchableOpacity>
+                      <Image source={{ uri: item.profile_image }} style={styles.followerAvatar} />
+                      <Text style={styles.followerName}>{item.username}</Text>
+                    </TouchableOpacity>
+                  </Link>
+                  <Text style={styles.imageDate}>{item.date}</Text> 
                 </View>
+                
                 <Image source={{ uri: item.image_src }} style={styles.homepageimage} />
                 <View style={styles.imageFooter}>
-                  <Text style={styles.imageLocation}>{item.location}</Text>
-                  <Text style={styles.imageRoute}>{item.route}</Text>
+                    <Text style={styles.imageRoute}>Route: {item.route || "Unknown"}</Text>
                 </View>
               </View>
             )}
