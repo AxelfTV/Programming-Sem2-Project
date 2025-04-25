@@ -122,14 +122,14 @@ imageGrid: {
     backgroundColor: "white",
   },
   imagePickerButton: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "rgb(238, 163, 0)",
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
   saveButton: {
-    backgroundColor: "green",
+    backgroundColor: "rgb(238, 163, 0)",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -154,7 +154,7 @@ imageGrid: {
   },
   
   selectImageButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor:"rgb(238, 163, 0)",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",

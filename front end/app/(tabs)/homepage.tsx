@@ -211,7 +211,7 @@ export default function homePage() {
    <View style={styles.imageGallery}>
           <FlatList
             data={UsersDisplay}
-            keyExtractor={(item) => item.profile_image}
+            keyExtractor={(item) => item.id}   
             renderItem={({ item }) => (
               <View style={styles.imageCard}>
                 <View style={styles.imageHeader}>
@@ -226,7 +226,7 @@ export default function homePage() {
        </Link>
              <Text style={styles.imageDate}>{item.date}</Text> 
                 </View>
-             <Image source={{ uri: item.image_src }} style={styles.image} />
+                <Image source={{ uri: item.image_src }} style={styles.homepageimage} />
                 <View style={styles.imageFooter}>
                   <Text style={styles.imageLocation}>{item.location}</Text>
                   <Text style={styles.imageRoute}>{item.route}</Text>
