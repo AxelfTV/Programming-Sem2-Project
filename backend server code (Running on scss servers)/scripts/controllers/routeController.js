@@ -177,6 +177,7 @@ class RouteController {
         for(let i = 0;i < ratings.length; i++){
             sum += ratings[i].score;
         }
+	sum = sum/ratings.length;
         res.send(JSON.stringify(sum));
     }
     async getRouteImage(req, res){
