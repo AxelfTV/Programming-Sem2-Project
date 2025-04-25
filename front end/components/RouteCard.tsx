@@ -22,16 +22,11 @@ const RouteCard: React.FC<RouteCardProps> = ({ image, name, rating, id, onPress 
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>{name}</Text>
-          <Text style={styles.cardRating}>{rating.toFixed(1)} rating</Text>
+          <Text style={styles.cardRating}>{rating.toFixed(1)} /5★</Text>
         </View>
 
-        <Text style={styles.cardDetails}>Number of Destinations</Text>
-        <Text style={styles.cardDetails}>Total distance</Text>
-        <Text style={styles.cardDetails}>Time estimate</Text>
-
-
         <TouchableOpacity onPress={onPress} style={styles.goButton}>
-          <Text style={styles.goButtonText}>GO</Text>
+          <Text style={styles.goButtonText}>Walk</Text>
         </TouchableOpacity>
       </View>
     </View>

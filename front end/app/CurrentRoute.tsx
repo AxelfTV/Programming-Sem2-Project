@@ -26,9 +26,9 @@ import { router } from "expo-router";
 import LeafletMap from "@/components/LeafletMap";
 
 export default function CurrentRoute() {
-  interface Route {
-    locations: Array<Location>;
-    info: RouteInfo;
+  interface CurrentRouteData {
+    locations: Location[];
+    info: CurrentRouteInfo;
   }
   interface Location {
     id: string;
@@ -37,9 +37,9 @@ export default function CurrentRoute() {
     lat: string;
     image_src: string;
   }
-  interface RouteInfo {
+  interface CurrentRouteInfo {
     id: string;
-    created_by: string;
+    created_by_id: string; 
     name: string;
   }
 
@@ -48,7 +48,7 @@ export default function CurrentRoute() {
     null
   );
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [route, setRoute] = useState<Route | null>(null);
+  const [route, setRoute] = useState<CurrentRouteData | null>(null);
   const [instanceID, setInstanceID] = useState<number | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const { user: currentUser } = useUser();
@@ -140,9 +140,9 @@ export default function CurrentRoute() {
       try {
         await endRouteInstance(instanceID);
         await createPost(currentUserId, instanceID);
-        await router.push({
-          pathname: "/(tabs)/profile",
-          params: { userId: currentUserId },
+        router.replace({
+          pathname: "/rateRoute",
+          params: { routeId },
         });
         Alert.alert(
           "Route Finished",

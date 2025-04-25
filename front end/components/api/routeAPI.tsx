@@ -141,7 +141,7 @@ export const getRouteImage = async (routeId: number): Promise<string> => {
     const response = await axios.get(`${API_URL}/routes/${routeId}/image`);
     return response.data;
 } catch (error) {
-    console.error("Failed to get route rating:", error);
+    console.error("Failed to get route image:", error);
     return "";
 }
 }
