@@ -50,8 +50,6 @@ export default function Profile() {
   const [images, setImages] = useState<ImageData[]>([]);
 
     const TempUser:number=19;
-  useEffect(() => {
-
     async function fetchProfile() {
       const profileData = await getProfile(viewedUserId?viewedUserId:0);
       const profile = profileData[0];
@@ -65,6 +63,8 @@ export default function Profile() {
       setFollowingNum(following.length.toString());
       setFollowerNum(follower.length.toString());
     }
+  useEffect(() => {
+
 
     if (viewedUserId) {
       fetchProfile();
@@ -116,7 +116,8 @@ export default function Profile() {
   const handleProfileUpdate = () => {
     setEditVisible(false);
     setTimeout(() => {
-      location.reload(); 
+    //  location.reload(); 
+    fetchProfile();
     }, 500);
   };
 
