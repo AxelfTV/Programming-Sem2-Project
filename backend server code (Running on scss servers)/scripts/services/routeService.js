@@ -4,12 +4,53 @@ class RouteService {
     constructor() {
         console.log("Route Service Created");
     }
+    async getAllRoutes(){
+        let conn;
+            try {
+                conn = await pool.getConnection();
+                const result = await conn.query("SELECT * FROM routes");
+                return result;
+              } catch(err){
+                console.error("Error:", err);
+                return null;
+              } finally {
+                if (conn) conn.release();
+              }
+        }
     async getRouteById(routeId){
         let conn;
         const sql = "SELECT * FROM routes WHERE id = ?";
         try {
             conn = await pool.getConnection();
             const result = await conn.query(sql, [routeId]);
+            return result;
+        } catch (err) {
+            console.error("Error:", err);
+            return null;
+        } finally {
+            if (conn) conn.release();
+        }
+    }
+    async getLocationById(locationId){
+        let conn;
+        const sql = "SELECT * FROM locations WHERE id = ?";
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query(sql, [locationId]);
+            return result;
+        } catch (err) {
+            console.error("Error:", err);
+            return null;
+        } finally {
+            if (conn) conn.release();
+        }
+    }
+    async getUserActiveInstance(userId){
+        let conn;
+        const sql = "select * from route_instances where user_id = ? and status != -1"
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query(sql, [userId]);
             return result;
         } catch (err) {
             console.error("Error:", err);
@@ -53,7 +94,7 @@ class RouteService {
     async getRouteLocationsByRouteId(routeId){
         let conn;
         const sql = `
-            SELECT l.id, l.name, l.long, l.lat
+            SELECT l.id, l.name, l.image_src, l.long, l.lat
             FROM locations l
             JOIN route_locations rl ON l.id = rl.location_id
             WHERE rl.route_id = ?
@@ -168,6 +209,21 @@ class RouteService {
             } finally {
                 if (conn) conn.release();
             }
+    }
+    async getRouteRatings(routeId)
+    {
+        let conn;
+        const sql = `select * from ratings where route_id = ?`;
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query(sql, [routeId]);
+            console.log(result);
+            return result;
+        } catch (err) {
+            console.error("Error:", err);
+        } finally {
+            if (conn) conn.release();
+        }
     }
 }
 

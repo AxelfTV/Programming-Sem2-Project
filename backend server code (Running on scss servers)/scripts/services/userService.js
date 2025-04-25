@@ -155,6 +155,14 @@ class UserService {
       let conn;
       try{
           conn = await pool.getConnection();
+
+          let rows = await conn.query("SELECT 1 FROM follows WHERE following_user_id = ? AND followed_user_id = ? LIMIT 1;",[followerId, followedId]);
+
+          if (rows.length > 0) {
+            console.log("Follow already exists");
+            return null;
+          }
+
           const result = await conn.query("INSERT INTO follows (following_user_id, followed_user_id) VALUES (?, ?);", [followerId, followedId]);
           return result.insertId.toString();
       } catch(err){
@@ -164,7 +172,24 @@ class UserService {
           if (conn) conn.release();
       }
   }
-    
+  async getRandomUsers(limit){
+    let conn;
+        const sql = `
+            select id, username, bio, profile_image_src from users
+            order by rand()
+            limit ?;
+        `; 
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query(sql, [limit]);
+            return result;
+        } catch (err) {
+            console.error("Error:", err);
+            return null;
+        } finally {
+            if (conn) conn.release();
+        }
+  }
 }
 
 module.exports = new UserService();

@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     res.send("Content here");
 });
+
 router.get('/user/:userId/posts', contentController.getUserPosts);
 
 router.post('/user/:userId/create/:instanceId', contentController.createPost);

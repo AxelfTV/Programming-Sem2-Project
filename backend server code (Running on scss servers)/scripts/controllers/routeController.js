@@ -5,6 +5,15 @@ class RouteController {
     constructor() {
         console.log("Route Controller Created");
     }
+    async getRoutes(req, res){
+        const result = await routeService.getAllRoutes();
+        if(result){
+        res.send(JSON.stringify(result));
+        }
+        else{
+            res.status(404).json({ message: "No Routes Found." });
+        }
+    }
     async getRouteById(req, res){
         const routeId = Number(req.params.routeId);
         const result = await routeService.getRouteById(routeId);
@@ -53,6 +62,10 @@ class RouteController {
         const userId = Number(req.params.userId);
         const routeId = Number(req.params.routeId);
 
+        if (isNaN(routeId) || isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid parameters" });
+        }
+
         const checkCurrent = await routeService.checkUserRouteStatus(userId);
         console.log(checkCurrent);
         if(!checkCurrent){
@@ -64,9 +77,47 @@ class RouteController {
             res.status(409).json({ message: "User already has an active route." });
         }
     }
+    async getUserActiveInstance(req, res){
+        const userId = Number(req.params.userId);
+
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid userId parameter" });
+        }
+
+        const result = await routeService.getUserActiveInstance(userId);
+        if(result.length > 0){
+            res.send(JSON.stringify(result));
+        }
+        else{
+            res.status(404).json({ message: "User has no active route." });
+        }
+    }
+    async getInstanceById(req, res){
+        const instanceId = Number(req.params.instanceId);
+
+        if (isNaN(instanceId)) {
+            return res.status(400).json({ message: "Invalid parameter" });
+        }
+
+        if (isNaN(instanceId)) {
+            return res.status(400).json({ message: "Invalid instanceId parameter" });
+        }
+
+        const result = await routeService.getInstanceById(instanceId);
+        if(result.length > 0){
+            res.send(JSON.stringify(result));
+        }
+        else{
+            res.status(404).json({ message: "Route instance not found." });
+        }
+    }
     async updateRouteInstance(req, res){
         const instanceId = Number(req.params.instanceId);
         const destinationNumber = Number(req.params.destinationNumber);
+
+        if (isNaN(instanceId) || isNaN(destinationNumber)) {
+            return res.status(400).json({ message: "Invalid parameters" });
+        }
 
         const instance = await routeService.getInstanceById(instanceId);
         console.log(instance);
@@ -89,10 +140,14 @@ class RouteController {
     async endRoute(req, res){
         const instanceId = Number(req.params.instanceId);
         const destinationNumber = -1
+        
+        if (isNaN(instanceId)) {
+            return res.status(400).json({ message: "Invalid parameter" });
+        }
 
         const instance = await routeService.getInstanceById(instanceId);
         console.log(instance);
-        if(instance.count===0){
+        if(instance.length==0){
             res.status(404).json({ message: "Route instance not found." });
         }
         else if(instance[0].status == -1){
@@ -107,6 +162,33 @@ class RouteController {
                 res.status(500).json({ message: "Internal server error." });
             } 
         }
+    }
+    async getRouteRating(req, res)
+    {
+        const routeId = Number(req.params.routeId);
+        if(isNaN(routeId)){
+            return res.status(400).json({ message: "Invalid parameter" });
+        }
+        const ratings = await routeService.getRouteRatings(routeId);
+        if(ratings.length <= 0){
+            return res.status(404).json({ message: "Route ratings not found." });
+        }
+        let sum = 0;
+        for(let i = 0;i < ratings.length; i++){
+            sum += ratings[i].score;
+        }
+        res.send(JSON.stringify(sum));
+    }
+    async getRouteImage(req, res){
+        const routeId = Number(req.params.routeId);
+        if(isNaN(routeId)){
+            return res.status(400).json({ message: "Invalid parameter" });
+        }
+        const locations = await routeService.getRouteLocationsByRouteId(routeId);
+        if(locations.length <= 0){
+            return res.status(404).json({ message: "Route locations not found." });
+        }
+        res.send(JSON.stringify(locations[0].image_src));
     }
 }
 

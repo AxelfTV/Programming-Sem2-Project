@@ -36,7 +36,7 @@ class ImageController {
     }
     async uploadInstanceImage(req, res){
         const instanceId = Number(req.params.instanceId);
-        const locationId = Number(req.params.locationNo);
+        const locationId = Number(req.params.locationId);
 
         const instance = await routeService.getInstanceById(instanceId);
         if(instance.count===0){
@@ -46,6 +46,27 @@ class ImageController {
         const result = await imageService.createInstanceImage(instanceId, locationId, imagePath);
         if(result){
             return res.status(200).json({ message: "Instance image uploaded.", path: imagePath });
+        }
+        else{
+            res.status(500).json({ message: "Internal Server Error." });
+        }
+    }
+    async updateLocationImage(req, res){
+        const locationId = Number(req.params.locationId);
+        const location = await routeService.getLocationById(locationId);
+        if(location.length === 0){
+            return res.status(404).send('Location not found.');
+        }
+        if(isNaN(locationId)){
+            return res.status(400).send('Not a valid location ID.');
+        }
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.');
+        }
+        const imagePath = req.file.path;
+        const result = await imageService.updateLocationImage(locationId, imagePath)
+        if(result){
+            return res.status(200).json({ message: "Location image updated.", path: imagePath });
         }
         else{
             res.status(500).json({ message: "Internal Server Error." });

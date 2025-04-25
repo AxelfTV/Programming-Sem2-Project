@@ -1,4 +1,5 @@
 const contentService = require('../services/contentService');
+ const contentService = require('../services/contentService');
 const routeService = require('../services/routeService');
 
 class ContentController { 
@@ -30,7 +31,7 @@ class ContentController {
         if(existingPost){
             return res.status(409).json({ message: "Post already exists." });
         }
-        else if(instance.count===0){
+        else if(instance.length===0){
             res.status(404).json({ message: "Route instance not found." });
         }
         else if(instance[0].status != -1){

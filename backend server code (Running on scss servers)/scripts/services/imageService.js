@@ -12,10 +12,23 @@ class ImageService {
         try{
             conn = await pool.getConnection();
             const result = await conn.query(sql, [instanceId, locationId, imagePath]);
-            return { instanceId, userId, message: "User image created successfully." };
+            return { instanceId, message: "User image created successfully." };
         } catch (err){
             console.error("Error:", err);
             return null;
+        } finally {
+            if (conn) conn.release();
+        }
+    }
+    async updateLocationImage(locationId, imagePath){
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            const result = await conn.query("UPDATE locations SET image_src = ? WHERE id = ?",[imagePath,locationId]);
+            return result;
+        } catch(err){
+            console.log("Error", err);
+            return null; 
         } finally {
             if (conn) conn.release();
         }

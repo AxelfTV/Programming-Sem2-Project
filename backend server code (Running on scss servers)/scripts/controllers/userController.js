@@ -98,6 +98,20 @@ class UserController {
             res.status(500).json({ message: "Internal Server Error." });
         }
     }
+    async getRandomUsers(req, res){
+        let limit = Number(req.query.limit);
+
+        if (isNaN(limit) || limit <= 0) {
+            limit = 5;
+        }
+        const result = await userService.getRandomUsers(limit);
+        if(result){
+            res.send(JSON.stringify(result));
+        }
+        else{
+            res.status(404).json({ message: "Users not found." });
+        }
+    }
 }
 
 module.exports = new UserController();

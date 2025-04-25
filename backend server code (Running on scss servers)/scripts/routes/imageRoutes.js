@@ -7,11 +7,12 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       let uploadPath = 'uploads/';
       if(req.query.type === 'profile'){
-        uploadPath += 'profile-images/'
+        uploadPath += 'profile-images/';
       }
       else if(req.query.type === 'instance'){
-        uploadPath == 'instance-images/'
+        uploadPath += 'instance-images/';
       }
+      
       cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
@@ -26,6 +27,8 @@ router.post('/', upload.single('image'), imageController.uploadImage);
 
 router.put('/user/:userId/profile', upload.single('image'), imageController.updateUserProfile);
 
-router.post('instance/:instanceId/location/:locationId', upload.single('image'), imageController.uploadInstanceImage);
+router.post('/instance/:instanceId/location/:locationId', upload.single('image'), imageController.uploadInstanceImage);
+
+router.put('/location/:locationId', upload.single('image'), imageController.updateLocationImage);
 
 module.exports = router;

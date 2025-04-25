@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+
 const router = express.Router();
 
 router.get('/', userController.getUsers);
@@ -17,5 +18,7 @@ router.post('/:followerUserId/follow/:followedUserId', userController.newFollow)
 router.get('/:userId/following', userController.getUserFollowing);
 
 router.get('/:userId/followers', userController.getUserFollowers);
+
+router.get('/selection/random', userController.getRandomUsers);
 
 module.exports = router;
