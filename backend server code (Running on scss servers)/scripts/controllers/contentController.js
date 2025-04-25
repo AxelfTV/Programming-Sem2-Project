@@ -1,4 +1,3 @@
-const contentService = require('../services/contentService');
  const contentService = require('../services/contentService');
 const routeService = require('../services/routeService');
 
