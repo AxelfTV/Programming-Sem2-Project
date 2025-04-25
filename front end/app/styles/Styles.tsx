@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   achievementCard: {
+    backgroundColor: "#fff",
     paddingVertical: 40,
     paddingHorizontal: 180,
     borderWidth: 1,
@@ -61,12 +62,45 @@ const styles = StyleSheet.create({
   achievementText: {
     fontSize: 16,
     color: "#333",
-  },  followButton:{},
-  followButtonText:{},
-  editButton:{},
-  editButtonText:{},
-  signOut:{},
-  signOutText:{},
+  },
+
+  followButton: {
+    backgroundColor: "#f4a261",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 10,
+  },
+  followButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+  editButton: {
+    backgroundColor: "#f4a261",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 10,
+  },
+  editButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
+  signOut: {
+    backgroundColor: "#dc3545",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  signOutText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
 
 
 gridItem: {
@@ -122,14 +156,14 @@ imageGrid: {
     backgroundColor: "white",
   },
   imagePickerButton: {
-    backgroundColor: "rgb(238, 163, 0)",
+    backgroundColor: "#f4a261",
     padding: 10,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 10,
   },
   saveButton: {
-    backgroundColor: "rgb(238, 163, 0)",
+    backgroundColor: "#f4a261",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -154,7 +188,7 @@ imageGrid: {
   },
   
   selectImageButton: {
-    backgroundColor:"rgb(238, 163, 0)",
+    backgroundColor:"#f4a261",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -482,6 +516,8 @@ imageGrid: {
     fontSize: 14,
     color: "#007bff",
   },
+
+  
 
 });
 

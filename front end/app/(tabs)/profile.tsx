@@ -163,15 +163,14 @@ export default function Profile() {
     onProfileUpdated={handleProfileUpdate}
   />
 )}
+          <TouchableOpacity style={styles.signOut} onPress={SignOut}>
+          <Text style={styles.signOutText}>SignOut</Text>
+        </TouchableOpacity>
 </>
 
 
           )}
         </View>
-
-        <TouchableOpacity style={styles.signOut} onPress={SignOut}>
-          <Text style={styles.signOutText}>SignOut</Text>
-        </TouchableOpacity>
 
         {/* Image Grid */}
         
